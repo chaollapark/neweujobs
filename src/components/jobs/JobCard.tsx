@@ -61,7 +61,7 @@ export default function JobCard({ job, featured = false }: JobCardProps) {
     if (!job.expiresAt) return null
     const now = Date.now()
     const expiresMs = new Date(job.expiresAt).getTime()
-    const daysLeft = Math.ceil((expiresMs - now) / (1000 * 60 * 60 * 24))
+    const daysLeft = Math.floor((expiresMs - now) / (1000 * 60 * 60 * 24))
 
     if (daysLeft < 0) return null
     if (daysLeft === 0) return { label: 'Expiring today', className: 'bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-300' }
