@@ -3,7 +3,7 @@
 import { useState, useMemo } from 'react'
 import JobCard from '@/components/jobs/JobCard'
 import SearchBar from '@/components/jobs/SearchBar'
-import { Job, Category, ContractType, ExperienceLevel, RemoteType } from '@/types'
+import { Job, Category, ContractType, ExperienceLevel, RemoteType, PolicyTag, POLICY_TAG_LABELS } from '@/types'
 
 interface JobsClientFiltersProps {
   initialJobs: Job[]
@@ -17,6 +17,7 @@ export default function JobsClientFilters({ initialJobs, initialQuery, categorie
     contractType: '' as ContractType | '',
     experienceLevel: '' as ExperienceLevel | '',
     remoteType: '' as RemoteType | '',
+    policyTag: '' as PolicyTag | '',
   })
 
   const filteredJobs = useMemo(() => {
@@ -38,6 +39,10 @@ export default function JobsClientFilters({ initialJobs, initialQuery, categorie
       result = result.filter(job => job.remoteType === filters.remoteType)
     }
 
+    if (filters.policyTag) {
+      result = result.filter(job => job.policyTags?.includes(filters.policyTag as PolicyTag))
+    }
+
     return result
   }, [initialJobs, filters])
 
@@ -47,6 +52,7 @@ export default function JobsClientFilters({ initialJobs, initialQuery, categorie
       contractType: '',
       experienceLevel: '',
       remoteType: '',
+      policyTag: '',
     })
   }
 
@@ -149,6 +155,23 @@ export default function JobsClientFilters({ initialJobs, initialQuery, categorie
                   <option value="onsite">On-site</option>
                   <option value="hybrid">Hybrid</option>
                   <option value="remote">Remote</option>
+                </select>
+              </div>
+
+              {/* Policy Tag Filter */}
+              <div className="mb-6">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  Policy Area
+                </label>
+                <select
+                  value={filters.policyTag}
+                  onChange={(e) => setFilters({ ...filters, policyTag: e.target.value as PolicyTag })}
+                  className="input-field py-2 text-sm dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                >
+                  <option value="">All Policy Areas</option>
+                  {(Object.entries(POLICY_TAG_LABELS) as [PolicyTag, string][]).map(([value, label]) => (
+                    <option key={value} value={value}>{label}</option>
+                  ))}
                 </select>
               </div>
             </div>

@@ -31,6 +31,7 @@ export type Job = {
   plan?: string;
   source?: string;
   blockAIApplications?: boolean;
+  policyTags?: string[];
 };
 
 function generateSlug(title: string | null | undefined, companyName: string | null | undefined, id: string): string {
@@ -91,6 +92,10 @@ const JobSchema = new Schema({
   blockAIApplications: {
     type: Boolean,
     default: true,
+  },
+  policyTags: {
+    type: [String],
+    default: [],
   },
 }, { timestamps: true });
 

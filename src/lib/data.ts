@@ -1,4 +1,4 @@
-import { Job, Company, Category } from '@/types'
+import { Job, Company, Category, PolicyTag } from '@/types'
 import dbConnect from '@/lib/dbConnect'
 import { JobModel, fetchJobs, findJobBySlug } from '@/models/Job'
 export { categories } from '@/lib/categories'
@@ -70,6 +70,36 @@ function determineCategory(companyName: string, title: string): Category {
   return categories[5] // Default to Public Affairs
 }
 
+// Infer policy domain tags from job title and description
+function inferPolicyTags(title: string, description: string): PolicyTag[] {
+  const text = `${title} ${description}`.toLowerCase()
+  const tagKeywords: Record<PolicyTag, string[]> = {
+    'energy': ['energy', 'electricity', 'renewable', 'gas', 'oil', 'nuclear', 'hydrogen'],
+    'environment': ['environment', 'climate', 'sustainability', 'green deal', 'biodiversity', 'emissions', 'circular economy'],
+    'digital': ['digital', 'cyber', 'data protection', 'ai ', 'artificial intelligence', 'technology', 'ict', 'gdpr', 'tech'],
+    'trade': ['trade', 'tariff', 'customs', 'wto', 'export', 'import', 'fta', 'commercial policy'],
+    'agriculture': ['agriculture', 'farming', 'fisheries', 'food safety', 'cap ', 'agri'],
+    'transport': ['transport', 'aviation', 'maritime', 'railway', 'mobility', 'logistics'],
+    'health': ['health', 'pharma', 'medical', 'pandemic', 'ema ', 'medicines', 'healthcare'],
+    'finance': ['finance', 'banking', 'ecb', 'monetary', 'fiscal', 'budget', 'economic', 'taxation', 'accounting'],
+    'defence': ['defence', 'defense', 'military', 'security', 'nato', 'csdp', 'arms'],
+    'migration': ['migration', 'asylum', 'refugee', 'border', 'frontex', 'immigration'],
+    'legal': ['legal', 'law', 'regulation', 'directive', 'compliance', 'judicial', 'court', 'legislation'],
+    'education': ['education', 'erasmus', 'training', 'research', 'academic', 'university', 'horizon'],
+    'competition': ['competition', 'antitrust', 'state aid', 'merger', 'cartel'],
+    'development': ['development', 'humanitarian', 'aid', 'cooperation', 'global south', 'oda'],
+    'foreign-affairs': ['foreign affairs', 'diplomatic', 'geopolitical', 'external relations', 'enlargement', 'neighbourhood'],
+  }
+
+  const tags: PolicyTag[] = []
+  for (const [tag, keywords] of Object.entries(tagKeywords)) {
+    if (keywords.some(kw => text.includes(kw))) {
+      tags.push(tag as PolicyTag)
+    }
+  }
+  return tags.slice(0, 4) // Cap at 4 tags per job
+}
+
 // Transform a MongoDB job document to the frontend Job type
 export function transformMongoJob(mongoJob: any): Job {
   const category = determineCategory(mongoJob.companyName || '', mongoJob.title || '')
@@ -117,6 +147,9 @@ export function transformMongoJob(mongoJob: any): Job {
     source: mongoJob.source,
     plan: mongoJob.plan,
     blockAIApplications: mongoJob.blockAIApplications,
+    policyTags: mongoJob.policyTags?.length
+      ? mongoJob.policyTags
+      : inferPolicyTags(mongoJob.title || '', mongoJob.description || ''),
     contactEmail: mongoJob.contactEmail,
     contactName: mongoJob.contactName,
     contactPhone: mongoJob.contactPhone,

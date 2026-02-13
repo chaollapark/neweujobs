@@ -1,7 +1,7 @@
 "use client"
 
 import Link from 'next/link'
-import { Job } from '@/types'
+import { Job, POLICY_TAG_LABELS, PolicyTag } from '@/types'
 
 interface JobCardProps {
   job: Job
@@ -57,16 +57,37 @@ export default function JobCard({ job, featured = false }: JobCardProps) {
     return `${days} days ago`
   }
 
+  const getDeadlineUrgency = () => {
+    if (!job.expiresAt) return null
+    const now = Date.now()
+    const expiresMs = new Date(job.expiresAt).getTime()
+    const daysLeft = Math.ceil((expiresMs - now) / (1000 * 60 * 60 * 24))
+
+    if (daysLeft < 0) return null
+    if (daysLeft === 0) return { label: 'Expiring today', className: 'bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-300' }
+    if (daysLeft === 1) return { label: '1 day left', className: 'bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-300' }
+    if (daysLeft <= 3) return { label: `${daysLeft} days left`, className: 'bg-orange-100 dark:bg-orange-900/30 text-orange-800 dark:text-orange-300' }
+    if (daysLeft <= 7) return { label: `${daysLeft} days left`, className: 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-300' }
+    return null
+  }
+
+  const deadline = getDeadlineUrgency()
+
   return (
     <Link href={`/jobs/${job.slug}`}>
       <div className={`card hover:border-eu-blue dark:hover:border-eu-yellow border-2 border-transparent cursor-pointer ${
         featured ? 'ring-2 ring-eu-yellow' : ''
       }`}>
-        {featured && (
-          <div className="mb-3">
+        <div className="flex items-center gap-2 mb-3">
+          {featured && (
             <span className="badge-yellow text-xs">Featured</span>
-          </div>
-        )}
+          )}
+          {deadline && (
+            <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold ${deadline.className}`}>
+              {deadline.label}
+            </span>
+          )}
+        </div>
 
         <div className="flex items-start gap-4">
           {/* Company Logo */}
@@ -96,6 +117,20 @@ export default function JobCard({ job, featured = false }: JobCardProps) {
                 {getRemoteLabel(job.remoteType)}
               </span>
             </div>
+
+            {/* Policy Tags */}
+            {job.policyTags && job.policyTags.length > 0 && (
+              <div className="flex flex-wrap gap-1.5 mt-2">
+                {job.policyTags.map(tag => (
+                  <span
+                    key={tag}
+                    className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-gray-600"
+                  >
+                    {POLICY_TAG_LABELS[tag as PolicyTag] || tag}
+                  </span>
+                ))}
+              </div>
+            )}
 
             <div className="flex items-center justify-between mt-4">
               <div className="flex items-center gap-4 text-sm text-gray-500 dark:text-gray-400">

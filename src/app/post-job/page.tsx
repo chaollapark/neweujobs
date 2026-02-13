@@ -4,6 +4,7 @@ import { useState, useEffect, Suspense } from 'react'
 import { useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { saveJobAction } from '@/app/actions/jobActions'
+import { POLICY_TAG_LABELS, PolicyTag } from '@/types'
 
 const plans = [
   {
@@ -56,6 +57,7 @@ function PostJobForm() {
     applyLink: '',
     expiresOn: '',
     blockAIApplications: false,
+    policyTags: [] as string[],
   })
 
   useEffect(() => {
@@ -91,6 +93,9 @@ function PostJobForm() {
       if (formData.applyLink) fd.append('applyLink', formData.applyLink)
       if (formData.expiresOn) fd.append('expiresOn', formData.expiresOn)
       fd.append('blockAIApplications', String(formData.blockAIApplications))
+      if (formData.policyTags.length > 0) {
+        fd.append('policyTags', JSON.stringify(formData.policyTags))
+      }
       fd.append('plan', 'pending')
 
       // Save job as pending
@@ -297,6 +302,43 @@ function PostJobForm() {
                 className="input-field dark:bg-gray-700 dark:border-gray-600 dark:text-white"
                 placeholder="Describe the role, responsibilities, and what makes this opportunity exciting..."
               />
+            </div>
+          </div>
+
+          {/* Policy Areas */}
+          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md p-8">
+            <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-2">Policy Areas</h2>
+            <p className="text-sm text-gray-500 dark:text-gray-400 mb-6">Select up to 4 policy areas relevant to this role (optional)</p>
+
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+              {(Object.entries(POLICY_TAG_LABELS) as [PolicyTag, string][]).map(([value, label]) => {
+                const isSelected = formData.policyTags.includes(value)
+                const isDisabled = !isSelected && formData.policyTags.length >= 4
+                return (
+                  <button
+                    key={value}
+                    type="button"
+                    disabled={isDisabled}
+                    onClick={() => {
+                      setFormData(prev => ({
+                        ...prev,
+                        policyTags: isSelected
+                          ? prev.policyTags.filter(t => t !== value)
+                          : [...prev.policyTags, value],
+                      }))
+                    }}
+                    className={`px-3 py-2 rounded-lg text-sm font-medium border transition-colors ${
+                      isSelected
+                        ? 'border-eu-blue bg-blue-50 dark:bg-blue-900/20 text-eu-blue dark:text-blue-300'
+                        : isDisabled
+                          ? 'border-gray-200 dark:border-gray-600 text-gray-400 dark:text-gray-500 cursor-not-allowed'
+                          : 'border-gray-200 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:border-gray-300 dark:hover:border-gray-500'
+                    }`}
+                  >
+                    {label}
+                  </button>
+                )
+              })}
             </div>
           </div>
 
