@@ -21,6 +21,7 @@ export interface Job {
   categoryId: string
   status: JobStatus
   featured: boolean
+  policyTags: PolicyTag[]
   expiresAt: Date
   createdAt: Date
   updatedAt: Date
@@ -146,6 +147,41 @@ export type ApplicationStatus =
 
 export type AlertFrequency = 'daily' | 'weekly' | 'instant'
 
+export type PolicyTag =
+  | 'energy'
+  | 'environment'
+  | 'digital'
+  | 'trade'
+  | 'agriculture'
+  | 'transport'
+  | 'health'
+  | 'finance'
+  | 'defence'
+  | 'migration'
+  | 'legal'
+  | 'education'
+  | 'competition'
+  | 'development'
+  | 'foreign-affairs'
+
+export const POLICY_TAG_LABELS: Record<PolicyTag, string> = {
+  'energy': 'Energy',
+  'environment': 'Environment',
+  'digital': 'Digital',
+  'trade': 'Trade',
+  'agriculture': 'Agriculture',
+  'transport': 'Transport',
+  'health': 'Health',
+  'finance': 'Finance',
+  'defence': 'Defence',
+  'migration': 'Migration',
+  'legal': 'Legal',
+  'education': 'Education',
+  'competition': 'Competition',
+  'development': 'Development',
+  'foreign-affairs': 'Foreign Affairs',
+}
+
 // Filter Types
 export interface JobFilters {
   search?: string
@@ -154,6 +190,7 @@ export interface JobFilters {
   contractType?: ContractType
   experienceLevel?: ExperienceLevel
   remoteType?: RemoteType
+  policyTag?: PolicyTag
   salaryMin?: number
   salaryMax?: number
 }

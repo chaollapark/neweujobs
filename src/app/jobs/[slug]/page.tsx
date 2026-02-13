@@ -2,6 +2,7 @@ import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import { Metadata } from 'next'
 import { getJobBySlug } from '@/lib/data'
+import { POLICY_TAG_LABELS, PolicyTag } from '@/types'
 
 export const revalidate = 60
 
@@ -88,6 +89,22 @@ export default async function JobDetailPage({ params }: JobDetailPageProps) {
       ? `mailto:${job.contactEmail}`
       : null
 
+  const getDeadlineUrgency = () => {
+    if (!job.expiresAt) return null
+    const now = Date.now()
+    const expiresMs = new Date(job.expiresAt).getTime()
+    const daysLeft = Math.ceil((expiresMs - now) / (1000 * 60 * 60 * 24))
+
+    if (daysLeft < 0) return null
+    if (daysLeft === 0) return { label: 'Expiring today', className: 'bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-300' }
+    if (daysLeft === 1) return { label: '1 day left', className: 'bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-300' }
+    if (daysLeft <= 3) return { label: `${daysLeft} days left`, className: 'bg-orange-100 dark:bg-orange-900/30 text-orange-800 dark:text-orange-300' }
+    if (daysLeft <= 7) return { label: `${daysLeft} days left`, className: 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-300' }
+    return null
+  }
+
+  const deadline = getDeadlineUrgency()
+
   // JSON-LD structured data
   const jsonLd = {
     '@context': 'https://schema.org',
@@ -157,9 +174,16 @@ export default async function JobDetailPage({ params }: JobDetailPageProps) {
                 </div>
 
                 <div className="flex-1">
-                  {job.featured && (
-                    <span className="badge-yellow text-xs mb-2 inline-block">Featured</span>
-                  )}
+                  <div className="flex flex-wrap items-center gap-2 mb-2">
+                    {job.featured && (
+                      <span className="badge-yellow text-xs">Featured</span>
+                    )}
+                    {deadline && (
+                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold ${deadline.className}`}>
+                        {deadline.label}
+                      </span>
+                    )}
+                  </div>
                   <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">{job.title}</h1>
                   <Link
                     href={`/companies/${job.company.slug}`}
@@ -176,6 +200,20 @@ export default async function JobDetailPage({ params }: JobDetailPageProps) {
                       {getExperienceLabel(job.experienceLevel)}
                     </span>
                   </div>
+
+                  {/* Policy Tags */}
+                  {job.policyTags && job.policyTags.length > 0 && (
+                    <div className="flex flex-wrap gap-2 mt-3">
+                      {job.policyTags.map((tag: string) => (
+                        <span
+                          key={tag}
+                          className="inline-flex items-center px-2.5 py-1 rounded text-xs font-medium bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-gray-600"
+                        >
+                          {POLICY_TAG_LABELS[tag as PolicyTag] || tag}
+                        </span>
+                      ))}
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
@@ -315,7 +353,27 @@ export default async function JobDetailPage({ params }: JobDetailPageProps) {
                       year: 'numeric'
                     })}
                   </p>
+                  {deadline && (
+                    <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold mt-1 ${deadline.className}`}>
+                      {deadline.label}
+                    </span>
+                  )}
                 </div>
+                {job.policyTags && job.policyTags.length > 0 && (
+                  <div>
+                    <span className="text-sm text-gray-500 dark:text-gray-400">Policy Areas</span>
+                    <div className="flex flex-wrap gap-1.5 mt-1">
+                      {job.policyTags.map((tag: string) => (
+                        <span
+                          key={tag}
+                          className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300"
+                        >
+                          {POLICY_TAG_LABELS[tag as PolicyTag] || tag}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
 
               {/* Share */}

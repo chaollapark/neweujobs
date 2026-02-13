@@ -22,6 +22,7 @@ const jobSchema = z.object({
   expiresOn: z.string().optional(),
   plan: z.string().optional(),
   blockAIApplications: z.boolean().optional(),
+  policyTags: z.array(z.string()).optional(),
 });
 
 export async function saveJobAction(formData: FormData) {
@@ -33,6 +34,8 @@ export async function saveJobAction(formData: FormData) {
       data[key] = value ? Number(value) : undefined;
     } else if (key === 'blockAIApplications') {
       data[key] = value === 'true';
+    } else if (key === 'policyTags') {
+      try { data[key] = JSON.parse(value as string); } catch { data[key] = []; }
     } else {
       data[key] = value;
     }
@@ -54,6 +57,7 @@ export async function saveJobAction(formData: FormData) {
       const jobData = {
         ...parsed.data,
         plan: parsed.data.plan || 'pending',
+        policyTags: parsed.data.policyTags || [],
       };
       const job = await JobModel.create(jobData);
       revalidatePath('/jobs');
