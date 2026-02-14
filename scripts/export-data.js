@@ -2,7 +2,7 @@ const { MongoClient } = require('mongodb');
 const fs = require('fs');
 const path = require('path');
 
-const MONGODB_URI = 'mongodb+srv://zmantic:mmcharlene@inigomontoya.s2cbe.mongodb.net/?retryWrites=true&w=majority&appName=Inigomontoya';
+const MONGODB_URI = "";
 const DB_NAME = 'test';
 
 async function exportData() {
