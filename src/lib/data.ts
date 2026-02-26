@@ -138,7 +138,7 @@ export function transformMongoJob(mongoJob: any): Job {
     experienceLevel: mapExperienceLevel(mongoJob.seniority || 'mid-level'),
     category,
     categoryId: category.id,
-    status: 'active',
+    status: mongoJob.status === 'retired' ? 'expired' : 'active',
     featured: isFeatured,
     expiresAt: new Date(mongoJob.expiresOn || Date.now() + 30 * 24 * 60 * 60 * 1000),
     createdAt: new Date(mongoJob.createdAt || Date.now()),
@@ -189,7 +189,7 @@ export async function getJobsByCategory(categorySlug: string): Promise<Job[]> {
 export async function getJobsByCompany(companySlug: string): Promise<Job[]> {
   await dbConnect()
   const jobs = await JobModel.find(
-    { plan: { $nin: ['pending'] } },
+    { plan: { $nin: ['pending'] }, status: { $ne: 'retired' } },
     {},
     { sort: '-createdAt', limit: 100 }
   )
@@ -200,7 +200,7 @@ export async function getJobsByCompany(companySlug: string): Promise<Job[]> {
 export async function getFeaturedJobs(): Promise<Job[]> {
   await dbConnect()
   const proJobs = await JobModel.find(
-    { plan: { $in: ['pro', 'recruiter'] } },
+    { plan: { $in: ['pro', 'recruiter'] }, status: { $ne: 'retired' } },
     {},
     { sort: '-createdAt', limit: 6 }
   )
@@ -218,6 +218,7 @@ export async function searchJobs(query: string): Promise<Job[]> {
         { description: { $regex: regex } },
       ],
       plan: { $nin: ['pending'] },
+      status: { $ne: 'retired' },
     },
     {},
     { sort: '-createdAt', limit: 50 }
@@ -258,7 +259,7 @@ function getUniqueCompanies(jobs: any[]): Company[] {
 export async function getAllCompanies(): Promise<Company[]> {
   await dbConnect()
   const jobs = await JobModel.find(
-    { companyName: { $exists: true, $ne: '' }, plan: { $nin: ['pending'] } },
+    { companyName: { $exists: true, $ne: '' }, plan: { $nin: ['pending'] }, status: { $ne: 'retired' } },
     { companyName: 1, applyLink: 1, city: 1, country: 1, createdAt: 1 }
   ).sort('-createdAt').limit(500)
 
@@ -268,7 +269,7 @@ export async function getAllCompanies(): Promise<Company[]> {
 export async function getJobCountByCompany(companySlug: string): Promise<number> {
   await dbConnect()
   const jobs = await JobModel.find(
-    { plan: { $nin: ['pending'] } },
+    { plan: { $nin: ['pending'] }, status: { $ne: 'retired' } },
     { companyName: 1 }
   ).limit(1000)
 
