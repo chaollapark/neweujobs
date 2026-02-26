@@ -17,6 +17,11 @@ COPY . .
 
 ENV NEXT_TELEMETRY_DISABLED=1
 
+# Override MongoDB URI at build time — mongo service isn't available during build.
+# Runtime URI comes from env_file in docker-compose.
+ENV MONGODB_URI=mongodb://localhost:27017
+ENV MONGO_URI=mongodb://localhost:27017
+
 RUN npm run build
 
 # Production image, copy all the files and run next
