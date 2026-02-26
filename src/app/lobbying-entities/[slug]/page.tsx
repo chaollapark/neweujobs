@@ -5,6 +5,7 @@ import dbConnect from '@/lib/dbConnect';
 import LobbyingEntityModel from '@/models/LobbyingEntity';
 import { fetchJobsForEntity } from '@/models/Job';
 import { getCareerGuidesForEntity } from '@/lib/careerGuideData';
+import { getOrgCareerGuideByEntitySlug } from '@/lib/orgCareerGuideData';
 
 export const dynamicParams = true;
 export const revalidate = 86400;
@@ -58,9 +59,10 @@ export default async function LobbyingEntityPage({ params }: PageProps) {
     notFound();
   }
 
-  const [relatedJobs, relatedGuides] = await Promise.all([
+  const [relatedJobs, relatedGuides, orgCareerGuide] = await Promise.all([
     fetchJobsForEntity(entity.website || entity.webSiteURL, entity.name, 3),
     getCareerGuidesForEntity(entity.interests || []),
+    getOrgCareerGuideByEntitySlug(slug),
   ]);
 
   const jsonLd = {
@@ -131,6 +133,27 @@ export default async function LobbyingEntityPage({ params }: PageProps) {
                   {entity.description}
                 </p>
               </section>
+            )}
+
+            {/* Organization Career Guide */}
+            {orgCareerGuide && (
+              <Link
+                href={`/career-guides/${orgCareerGuide.slug}`}
+                className="block bg-gradient-to-r from-eu-blue to-eu-dark rounded-lg shadow-md p-6 group hover:shadow-lg transition-shadow"
+              >
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h2 className="text-lg font-semibold text-white mb-1">
+                      Career Guide for {entity.name}
+                    </h2>
+                    <p className="text-gray-300 text-sm">
+                      How to get hired, interview tips, salary info &amp; insider advice
+                      {orgCareerGuide.wordCount && ` · ${orgCareerGuide.wordCount.toLocaleString()} words`}
+                    </p>
+                  </div>
+                  <span className="text-white text-2xl group-hover:translate-x-1 transition-transform">&rarr;</span>
+                </div>
+              </Link>
             )}
 
             {/* Goals */}
