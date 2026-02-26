@@ -1,7 +1,7 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   images: {
-    domains: ['images.unsplash.com', 'logo.clearbit.com', 'www2.eurobrussels.com'],
+    domains: ['images.unsplash.com', 'logo.clearbit.com', 'www2.eurobrussels.com', 'bestinbrussels.eu'],
   },
   experimental: {
     serverComponentsExternalPackages: ['mongoose'],

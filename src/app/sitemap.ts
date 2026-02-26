@@ -2,6 +2,15 @@ import { MetadataRoute } from 'next'
 import dbConnect from '@/lib/dbConnect'
 import { JobModel } from '@/models/Job'
 import LobbyingEntityModel from '@/models/LobbyingEntity'
+import BibConsultancy from '@/models/BibConsultancy'
+import BibConsultant from '@/models/BibConsultant'
+import BibLawFirm from '@/models/BibLawFirm'
+import BibIntelligenceSystem from '@/models/BibIntelligenceSystem'
+import BibDigitalTool from '@/models/BibDigitalTool'
+import BibTrainer from '@/models/BibTrainer'
+import BibSpecialistCategory from '@/models/BibSpecialistCategory'
+import BibArticle from '@/models/BibArticle'
+import BibEditorialPage from '@/models/BibEditorialPage'
 import { getAllPostSlugs } from '@/lib/blogUtils'
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
@@ -19,6 +28,17 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${baseUrl}/lobbying-entities/interests`, lastModified: new Date(), changeFrequency: 'weekly', priority: 0.5 },
     { url: `${baseUrl}/blog`, lastModified: new Date(), changeFrequency: 'weekly', priority: 0.6 },
     { url: `${baseUrl}/contact`, lastModified: new Date(), changeFrequency: 'monthly', priority: 0.4 },
+    // Best in Brussels static pages
+    { url: `${baseUrl}/best-in-brussels`, lastModified: new Date(), changeFrequency: 'weekly', priority: 0.8 },
+    { url: `${baseUrl}/best-in-brussels/consultancies`, lastModified: new Date(), changeFrequency: 'weekly', priority: 0.7 },
+    { url: `${baseUrl}/best-in-brussels/consultants`, lastModified: new Date(), changeFrequency: 'weekly', priority: 0.7 },
+    { url: `${baseUrl}/best-in-brussels/law-firms`, lastModified: new Date(), changeFrequency: 'weekly', priority: 0.6 },
+    { url: `${baseUrl}/best-in-brussels/intelligence-systems`, lastModified: new Date(), changeFrequency: 'weekly', priority: 0.6 },
+    { url: `${baseUrl}/best-in-brussels/digital-tools`, lastModified: new Date(), changeFrequency: 'weekly', priority: 0.6 },
+    { url: `${baseUrl}/best-in-brussels/trainers`, lastModified: new Date(), changeFrequency: 'weekly', priority: 0.6 },
+    { url: `${baseUrl}/best-in-brussels/specialists`, lastModified: new Date(), changeFrequency: 'weekly', priority: 0.6 },
+    { url: `${baseUrl}/best-in-brussels/articles`, lastModified: new Date(), changeFrequency: 'weekly', priority: 0.6 },
+    { url: `${baseUrl}/best-in-brussels/guides`, lastModified: new Date(), changeFrequency: 'monthly', priority: 0.5 },
   ]
 
   // Seniority pages
@@ -83,5 +103,45 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     // Blog utils may not exist yet
   }
 
-  return [...staticPages, ...seniorityPages, ...jobPages, ...entityPages, ...blogPages]
+  // Best in Brussels dynamic pages
+  let bibPages: MetadataRoute.Sitemap = []
+  try {
+    await dbConnect()
+
+    const [consultancies, consultants, lawFirms, intelligenceSystems, digitalTools, trainers, specialists, articles, editorials] = await Promise.all([
+      BibConsultancy.find({}, { slug: 1, updatedAt: 1 }).lean(),
+      BibConsultant.find({}, { slug: 1, updatedAt: 1 }).lean(),
+      BibLawFirm.find({}, { slug: 1, updatedAt: 1 }).lean(),
+      BibIntelligenceSystem.find({}, { slug: 1, updatedAt: 1 }).lean(),
+      BibDigitalTool.find({}, { slug: 1, updatedAt: 1 }).lean(),
+      BibTrainer.find({}, { slug: 1, updatedAt: 1 }).lean(),
+      BibSpecialistCategory.find({}, { slug: 1, updatedAt: 1 }).lean(),
+      BibArticle.find({}, { slug: 1, updatedAt: 1 }).lean(),
+      BibEditorialPage.find({}, { slug: 1, updatedAt: 1 }).lean(),
+    ])
+
+    const mapSlugs = (items: any[], pathPrefix: string, priority: number) =>
+      items.map((item: any) => ({
+        url: `${baseUrl}/best-in-brussels/${pathPrefix}/${item.slug}`,
+        lastModified: item.updatedAt || new Date(),
+        changeFrequency: 'monthly' as const,
+        priority,
+      }))
+
+    bibPages = [
+      ...mapSlugs(consultancies, 'consultancies', 0.5),
+      ...mapSlugs(consultants, 'consultants', 0.4),
+      ...mapSlugs(lawFirms, 'law-firms', 0.5),
+      ...mapSlugs(intelligenceSystems, 'intelligence-systems', 0.5),
+      ...mapSlugs(digitalTools, 'digital-tools', 0.5),
+      ...mapSlugs(trainers, 'trainers', 0.5),
+      ...mapSlugs(specialists, 'specialists', 0.5),
+      ...mapSlugs(articles, 'articles', 0.5),
+      ...mapSlugs(editorials, 'guides', 0.4),
+    ]
+  } catch (e) {
+    console.error('Error generating BIB sitemap entries:', e)
+  }
+
+  return [...staticPages, ...seniorityPages, ...jobPages, ...entityPages, ...blogPages, ...bibPages]
 }
