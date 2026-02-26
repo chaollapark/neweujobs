@@ -11,7 +11,7 @@ import BibTrainer from '@/models/BibTrainer'
 import BibSpecialistCategory from '@/models/BibSpecialistCategory'
 import BibArticle from '@/models/BibArticle'
 import BibEditorialPage from '@/models/BibEditorialPage'
-import { getAllPostSlugs } from '@/lib/blogUtils'
+import CareerGuide from '@/models/CareerGuide'
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://eujobs.brussels'
@@ -26,7 +26,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${baseUrl}/fairpay`, lastModified: new Date(), changeFrequency: 'monthly', priority: 0.5 },
     { url: `${baseUrl}/lobbying-entities`, lastModified: new Date(), changeFrequency: 'weekly', priority: 0.7 },
     { url: `${baseUrl}/lobbying-entities/interests`, lastModified: new Date(), changeFrequency: 'weekly', priority: 0.5 },
-    { url: `${baseUrl}/blog`, lastModified: new Date(), changeFrequency: 'weekly', priority: 0.6 },
+    { url: `${baseUrl}/blog`, lastModified: new Date(), changeFrequency: 'weekly', priority: 0.7 },
     { url: `${baseUrl}/contact`, lastModified: new Date(), changeFrequency: 'monthly', priority: 0.4 },
     // Best in Brussels static pages
     { url: `${baseUrl}/best-in-brussels`, lastModified: new Date(), changeFrequency: 'weekly', priority: 0.8 },
@@ -89,18 +89,19 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     console.error('Error generating entity sitemap entries:', e)
   }
 
-  // Blog pages
+  // Blog pages (career guides from MongoDB)
   let blogPages: MetadataRoute.Sitemap = []
   try {
-    const slugs = getAllPostSlugs()
-    blogPages = slugs.map(slug => ({
-      url: `${baseUrl}/blog/${slug}`,
-      lastModified: new Date(),
-      changeFrequency: 'monthly' as const,
-      priority: 0.5,
+    await dbConnect()
+    const guides = await CareerGuide.find({}, { slug: 1, updatedAt: 1 }).lean()
+    blogPages = guides.map((guide: any) => ({
+      url: `${baseUrl}/blog/${encodeURIComponent(guide.slug)}`,
+      lastModified: guide.updatedAt || new Date(),
+      changeFrequency: 'weekly' as const,
+      priority: 0.6,
     }))
-  } catch {
-    // Blog utils may not exist yet
+  } catch (e) {
+    console.error('Error generating blog sitemap entries:', e)
   }
 
   // Best in Brussels dynamic pages

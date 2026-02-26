@@ -4,6 +4,7 @@ import { notFound } from 'next/navigation';
 import dbConnect from '@/lib/dbConnect';
 import LobbyingEntityModel from '@/models/LobbyingEntity';
 import { fetchJobsForEntity } from '@/models/Job';
+import { getCareerGuidesForEntity } from '@/lib/careerGuideData';
 
 export const dynamicParams = true;
 export const revalidate = 86400;
@@ -57,11 +58,10 @@ export default async function LobbyingEntityPage({ params }: PageProps) {
     notFound();
   }
 
-  const relatedJobs = await fetchJobsForEntity(
-    entity.website || entity.webSiteURL,
-    entity.name,
-    3
-  );
+  const [relatedJobs, relatedGuides] = await Promise.all([
+    fetchJobsForEntity(entity.website || entity.webSiteURL, entity.name, 3),
+    getCareerGuidesForEntity(entity.interests || []),
+  ]);
 
   const jsonLd = {
     '@context': 'https://schema.org',
@@ -186,6 +186,33 @@ export default async function LobbyingEntityPage({ params }: PageProps) {
                         {job.city && <span>{job.city}</span>}
                         {job.type && <span>{job.type}</span>}
                       </div>
+                    </Link>
+                  ))}
+                </div>
+              </section>
+            )}
+
+            {/* Career Guides */}
+            {relatedGuides.length > 0 && (
+              <section className="bg-white dark:bg-gray-800 rounded-lg shadow-md dark:shadow-gray-900/30 border border-gray-200 dark:border-gray-600 p-6">
+                <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">
+                  Career Guides
+                </h2>
+                <div className="space-y-4">
+                  {relatedGuides.map((guide: any) => (
+                    <Link
+                      key={guide._id}
+                      href={`/blog/${encodeURIComponent(guide.slug)}`}
+                      className="block p-4 rounded-lg border border-gray-200 dark:border-gray-600 hover:border-eu-blue dark:hover:border-eu-blue transition-colors bg-gray-50 dark:bg-gray-900"
+                    >
+                      <h3 className="font-semibold text-gray-900 dark:text-white mb-1">
+                        {guide.title}
+                      </h3>
+                      {guide.excerpt && (
+                        <p className="text-sm text-gray-500 dark:text-gray-400 line-clamp-2">
+                          {guide.excerpt}
+                        </p>
+                      )}
                     </Link>
                   ))}
                 </div>
