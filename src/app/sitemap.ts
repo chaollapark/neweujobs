@@ -12,6 +12,7 @@ import BibSpecialistCategory from '@/models/BibSpecialistCategory'
 import BibArticle from '@/models/BibArticle'
 import BibEditorialPage from '@/models/BibEditorialPage'
 import CareerGuide from '@/models/CareerGuide'
+import OrgCareerGuide from '@/models/OrgCareerGuide'
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://eujobs.brussels'
@@ -105,6 +106,29 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     console.error('Error generating blog sitemap entries:', e)
   }
 
+  // Organization career guides
+  let orgGuidePages: MetadataRoute.Sitemap = []
+  try {
+    await dbConnect()
+    const orgGuides = await OrgCareerGuide.find({}, { slug: 1, updatedAt: 1 }).lean()
+    orgGuidePages = [
+      {
+        url: `${baseUrl}/career-guides`,
+        lastModified: new Date(),
+        changeFrequency: 'weekly' as const,
+        priority: 0.6,
+      },
+      ...orgGuides.map((guide: any) => ({
+        url: `${baseUrl}/career-guides/${guide.slug}`,
+        lastModified: guide.updatedAt || new Date(),
+        changeFrequency: 'monthly' as const,
+        priority: 0.4,
+      })),
+    ]
+  } catch (e) {
+    console.error('Error generating org career guide sitemap entries:', e)
+  }
+
   // Best in Brussels dynamic pages
   let bibPages: MetadataRoute.Sitemap = []
   try {
@@ -145,5 +169,5 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     console.error('Error generating BIB sitemap entries:', e)
   }
 
-  return [...staticPages, ...seniorityPages, ...jobPages, ...entityPages, ...blogPages, ...bibPages]
+  return [...staticPages, ...seniorityPages, ...jobPages, ...entityPages, ...blogPages, ...orgGuidePages, ...bibPages]
 }

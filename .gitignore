@@ -46,3 +46,6 @@ next-env.d.ts
 # Logs
 logs/
 *.log
+
+# Career guide JSON files (288MB, imported via script)
+/career-guides/
