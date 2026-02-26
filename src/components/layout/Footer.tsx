@@ -1,20 +1,38 @@
+'use client'
+
 import Link from 'next/link'
+import { usePathname } from 'next/navigation'
+import { VALID_CITY_SLUGS, getCityConfig } from '@/lib/cities'
+
+function deriveCityFromPath(pathname: string): string | null {
+  const segments = pathname.split('/')
+  const first = segments[1]
+  if (first && VALID_CITY_SLUGS.includes(first)) return first
+  return null
+}
 
 export default function Footer() {
+  const pathname = usePathname()
+  const city = deriveCityFromPath(pathname)
+  const config = city ? getCityConfig(city) : null
+  const prefix = city ? `/${city}` : '/brussels'
+  const isBrussels = city === 'brussels' || !city
+  const brandName = config ? `Jobs ${config.name}` : 'EU Jobs'
+
   return (
     <footer className="bg-eu-dark text-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <div className="grid grid-cols-1 md:grid-cols-5 gap-8">
+        <div className={`grid grid-cols-1 ${isBrussels ? 'md:grid-cols-5' : 'md:grid-cols-4'} gap-8`}>
           {/* Brand */}
           <div className="col-span-1">
             <div className="flex items-center space-x-2 mb-4">
               <div className="w-10 h-10 bg-eu-yellow rounded-lg flex items-center justify-center">
                 <span className="text-eu-blue font-bold text-xl">EU</span>
               </div>
-              <span className="text-xl font-bold">Jobs Brussels</span>
+              <span className="text-xl font-bold">{brandName}</span>
             </div>
             <p className="text-gray-300 text-sm">
-              The leading job board for EU institutions, NGOs, think tanks, and public affairs positions in Brussels.
+              The leading job board for EU institutions, NGOs, think tanks, and public affairs positions across Europe.
             </p>
           </div>
 
@@ -22,11 +40,15 @@ export default function Footer() {
           <div>
             <h3 className="font-semibold text-lg mb-4">For Job Seekers</h3>
             <ul className="space-y-2 text-gray-300">
-              <li><Link href="/jobs" className="hover:text-eu-yellow">Browse Jobs</Link></li>
-              <li><Link href="/categories" className="hover:text-eu-yellow">Job Categories</Link></li>
-              <li><Link href="/companies" className="hover:text-eu-yellow">Companies</Link></li>
-              <li><Link href="/fairpay" className="hover:text-eu-yellow">Fair Pay Calculator</Link></li>
-              <li><Link href="/blog" className="hover:text-eu-yellow">Career Advice</Link></li>
+              <li><Link href={`${prefix}/jobs`} className="hover:text-eu-yellow">Browse Jobs</Link></li>
+              <li><Link href={`${prefix}/categories`} className="hover:text-eu-yellow">Job Categories</Link></li>
+              <li><Link href={`${prefix}/companies`} className="hover:text-eu-yellow">Companies</Link></li>
+              {isBrussels && (
+                <>
+                  <li><Link href={`${prefix}/fairpay`} className="hover:text-eu-yellow">Fair Pay Calculator</Link></li>
+                  <li><Link href={`${prefix}/blog`} className="hover:text-eu-yellow">Career Advice</Link></li>
+                </>
+              )}
             </ul>
           </div>
 
@@ -40,24 +62,28 @@ export default function Footer() {
             </ul>
           </div>
 
-          {/* Best in Brussels */}
-          <div>
-            <h3 className="font-semibold text-lg mb-4">Best in Brussels</h3>
-            <ul className="space-y-2 text-gray-300">
-              <li><Link href="/best-in-brussels/consultancies" className="hover:text-eu-yellow">Consultancies</Link></li>
-              <li><Link href="/best-in-brussels/consultants" className="hover:text-eu-yellow">Consultants</Link></li>
-              <li><Link href="/best-in-brussels/law-firms" className="hover:text-eu-yellow">Law Firms</Link></li>
-              <li><Link href="/best-in-brussels/intelligence-systems" className="hover:text-eu-yellow">Intelligence Systems</Link></li>
-              <li><Link href="/best-in-brussels/specialists" className="hover:text-eu-yellow">Specialist Areas</Link></li>
-              <li><Link href="/best-in-brussels/guides" className="hover:text-eu-yellow">Guides</Link></li>
-            </ul>
-          </div>
+          {/* Best in Brussels - only show for Brussels */}
+          {isBrussels && (
+            <div>
+              <h3 className="font-semibold text-lg mb-4">Best in Brussels</h3>
+              <ul className="space-y-2 text-gray-300">
+                <li><Link href={`${prefix}/best-in-brussels/consultancies`} className="hover:text-eu-yellow">Consultancies</Link></li>
+                <li><Link href={`${prefix}/best-in-brussels/consultants`} className="hover:text-eu-yellow">Consultants</Link></li>
+                <li><Link href={`${prefix}/best-in-brussels/law-firms`} className="hover:text-eu-yellow">Law Firms</Link></li>
+                <li><Link href={`${prefix}/best-in-brussels/intelligence-systems`} className="hover:text-eu-yellow">Intelligence Systems</Link></li>
+                <li><Link href={`${prefix}/best-in-brussels/specialists`} className="hover:text-eu-yellow">Specialist Areas</Link></li>
+                <li><Link href={`${prefix}/best-in-brussels/guides`} className="hover:text-eu-yellow">Guides</Link></li>
+              </ul>
+            </div>
+          )}
 
           {/* Resources */}
           <div>
             <h3 className="font-semibold text-lg mb-4">Resources</h3>
             <ul className="space-y-2 text-gray-300">
-              <li><Link href="/lobbying-entities" className="hover:text-eu-yellow">Lobbying Entities Directory</Link></li>
+              {isBrussels && (
+                <li><Link href={`${prefix}/lobbying-entities`} className="hover:text-eu-yellow">Lobbying Entities Directory</Link></li>
+              )}
               <li><Link href="/about" className="hover:text-eu-yellow">About Us</Link></li>
               <li><Link href="/contact" className="hover:text-eu-yellow">Contact</Link></li>
               <li><Link href="/privacy" className="hover:text-eu-yellow">Privacy Policy</Link></li>
@@ -69,7 +95,7 @@ export default function Footer() {
         {/* Bottom Bar */}
         <div className="border-t border-gray-700 mt-8 pt-8 flex flex-col md:flex-row justify-between items-center">
           <p className="text-gray-400 text-sm">
-            &copy; {new Date().getFullYear()} EU Jobs Brussels. All rights reserved.
+            &copy; {new Date().getFullYear()} EU Jobs. All rights reserved.
           </p>
           <div className="flex space-x-6 mt-4 md:mt-0">
             <a href="https://twitter.com" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-eu-yellow">

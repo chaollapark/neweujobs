@@ -104,6 +104,8 @@ const JobSchema = new Schema({
   },
 }, { timestamps: true });
 
+JobSchema.index({ city: 1, status: 1, plan: 1, createdAt: -1 });
+
 JobSchema.pre('save', function () {
   if (this.isModified('title') || this.isModified('companyName') || !this.slug) {
     this.slug = generateSlug(this.title, this.companyName, this._id.toString());
@@ -112,12 +114,12 @@ JobSchema.pre('save', function () {
 
 export const JobModel = models?.Job || model('Job', JobSchema);
 
-export async function fetchJobs(limit: number = 10) {
+export async function fetchJobs(limit: number = 10, cityFilter: Record<string, any> = {}) {
   try {
     await dbConnect();
 
     const proJobs = await JobModel.find(
-      { plan: { $in: ['recruiter', 'pro'] }, status: { $ne: 'retired' } },
+      { plan: { $in: ['recruiter', 'pro'] }, status: { $ne: 'retired' }, ...cityFilter },
       {},
       { sort: '-createdAt', limit }
     );
@@ -129,6 +131,7 @@ export async function fetchJobs(limit: number = 10) {
           $nin: ['pro', 'pending', 'recruiter'],
         },
         status: { $ne: 'retired' },
+        ...cityFilter,
       },
       {},
       { sort: '-createdAt', limit: remainingLimit }
@@ -152,11 +155,11 @@ export async function findJobBySlug(slug: string) {
   }
 }
 
-export async function fetchJobsBySource(source: string | string[]) {
+export async function fetchJobsBySource(source: string | string[], cityFilter: Record<string, any> = {}) {
   await dbConnect();
 
   const featuredJobs = await JobModel.find(
-    { plan: { $in: ['pro', 'recruiter'] }, status: { $ne: 'retired' } },
+    { plan: { $in: ['pro', 'recruiter'] }, status: { $ne: 'retired' }, ...cityFilter },
     {},
     { sort: '-createdAt', limit: 5 }
   );
@@ -168,6 +171,7 @@ export async function fetchJobsBySource(source: string | string[]) {
       source: sourceQuery,
       plan: { $nin: ['pro', 'recruiter', 'pending'] },
       status: { $ne: 'retired' },
+      ...cityFilter,
     },
     {},
     { sort: '-createdAt', limit: 50 }
@@ -176,7 +180,7 @@ export async function fetchJobsBySource(source: string | string[]) {
   return JSON.parse(JSON.stringify([...featuredJobs, ...regularJobs]));
 }
 
-export async function fetchJobsBySeniority(seniority: string) {
+export async function fetchJobsBySeniority(seniority: string, cityFilter: Record<string, any> = {}) {
   await dbConnect();
 
   const featuredJobs = await JobModel.find(
@@ -184,6 +188,7 @@ export async function fetchJobsBySeniority(seniority: string) {
       seniority,
       plan: { $in: ['pro', 'recruiter'] },
       status: { $ne: 'retired' },
+      ...cityFilter,
     },
     {},
     { sort: '-createdAt', limit: 5 }
@@ -194,6 +199,7 @@ export async function fetchJobsBySeniority(seniority: string) {
       seniority,
       plan: { $nin: ['pro', 'recruiter', 'pending'] },
       status: { $ne: 'retired' },
+      ...cityFilter,
     },
     {},
     { sort: '-createdAt', limit: 50 }

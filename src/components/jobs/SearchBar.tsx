@@ -6,19 +6,22 @@ import { useRouter } from 'next/navigation'
 interface SearchBarProps {
   initialQuery?: string
   large?: boolean
+  citySlug?: string
 }
 
-export default function SearchBar({ initialQuery = '', large = false }: SearchBarProps) {
+export default function SearchBar({ initialQuery = '', large = false, citySlug }: SearchBarProps) {
   const [query, setQuery] = useState(initialQuery)
   const [location, setLocation] = useState('')
   const router = useRouter()
+
+  const jobsPath = citySlug ? `/${citySlug}/jobs` : '/jobs'
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
     const params = new URLSearchParams()
     if (query) params.set('q', query)
     if (location) params.set('location', location)
-    router.push(`/jobs?${params.toString()}`)
+    router.push(`${jobsPath}?${params.toString()}`)
   }
 
   if (large) {
@@ -39,7 +42,8 @@ export default function SearchBar({ initialQuery = '', large = false }: SearchBa
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Where</label>
             <input
               type="text"
-              placeholder="Brussels, Belgium"
+              placeholder={citySlug ? undefined : 'City, Country'}
+              defaultValue={citySlug ? undefined : ''}
               value={location}
               onChange={(e) => setLocation(e.target.value)}
               className="input-field"

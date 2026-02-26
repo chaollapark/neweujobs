@@ -1,47 +1,91 @@
 import Link from 'next/link'
-import SearchBar from '@/components/jobs/SearchBar'
+import { CITIES } from '@/lib/cities'
+import { getFeaturedJobs } from '@/lib/data'
 import JobCard from '@/components/jobs/JobCard'
-import { categories, getFeaturedJobs, getLatestJobs } from '@/lib/data'
 
 export const revalidate = 60
 
-export default async function HomePage() {
+export default async function PlatformLandingPage() {
   const featuredJobs = await getFeaturedJobs()
-  const recentJobs = await getLatestJobs(6)
 
   return (
     <div>
       {/* Hero Section */}
       <section className="bg-gradient-to-br from-eu-blue to-eu-dark text-white py-20">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6">
+            EU Jobs Across
+            <span className="text-eu-yellow"> Europe</span>
+          </h1>
+          <p className="text-xl text-gray-300 max-w-3xl mx-auto mb-10">
+            The leading job board for EU institutions, international organisations, NGOs, think tanks, and public affairs positions across Europe.
+          </p>
+          <Link
+            href="/brussels"
+            className="bg-eu-yellow text-eu-dark px-8 py-4 rounded-lg font-semibold hover:bg-yellow-400 transition-colors inline-block text-lg"
+          >
+            Browse Brussels Jobs
+          </Link>
+        </div>
+      </section>
+
+      {/* City Cards Grid */}
+      <section className="py-16 bg-white dark:bg-gray-800">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-10">
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6">
-              Find Your Career in the
-              <span className="text-eu-yellow"> EU Bubble</span>
-            </h1>
-            <p className="text-xl text-gray-300 max-w-3xl mx-auto">
-              The leading job board for EU institutions, NGOs, think tanks, and public affairs positions in Brussels.
-            </p>
+          <div className="text-center mb-12">
+            <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">Choose Your City</h2>
+            <p className="text-gray-600 dark:text-gray-300">Find EU and international affairs jobs in major European hubs</p>
           </div>
 
-          <div className="max-w-4xl mx-auto">
-            <SearchBar large />
-          </div>
-
-          <div className="flex flex-wrap justify-center gap-4 mt-8 text-sm">
-            <span className="text-gray-300">Popular:</span>
-            <Link href="/jobs?q=policy+officer" className="text-eu-yellow hover:underline">Policy Officer</Link>
-            <Link href="/jobs?q=public+affairs" className="text-eu-yellow hover:underline">Public Affairs</Link>
-            <Link href="/jobs?q=traineeship" className="text-eu-yellow hover:underline">Traineeship</Link>
-            <Link href="/jobs?q=communications" className="text-eu-yellow hover:underline">Communications</Link>
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
+            {CITIES.map(city => (
+              <Link
+                key={city.slug}
+                href={`/${city.slug}`}
+                className="bg-white dark:bg-gray-800 rounded-xl shadow-md p-8 text-center hover:border-eu-blue border-2 border-gray-200 dark:border-gray-700 dark:hover:border-eu-blue transition-all hover:shadow-lg group"
+              >
+                <h3 className="text-2xl font-bold text-gray-900 dark:text-white group-hover:text-eu-blue dark:group-hover:text-eu-yellow mb-2">
+                  {city.name}
+                </h3>
+                <p className="text-gray-500 dark:text-gray-400 text-sm">{city.country}</p>
+                <p className="text-gray-600 dark:text-gray-300 text-sm mt-3">{city.description.split(' - ')[1] || city.description}</p>
+                <span className="inline-block mt-4 text-eu-blue dark:text-eu-yellow font-semibold text-sm">
+                  View jobs &rarr;
+                </span>
+              </Link>
+            ))}
           </div>
         </div>
       </section>
 
+      {/* Featured Jobs */}
+      {featuredJobs.length > 0 && (
+        <section className="py-16 bg-gray-50 dark:bg-gray-900">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="flex justify-between items-center mb-8">
+              <h2 className="text-3xl font-bold text-gray-900 dark:text-white">Featured Jobs</h2>
+              <Link href="/brussels/jobs" className="text-eu-blue font-medium hover:underline">
+                View all jobs &rarr;
+              </Link>
+            </div>
+
+            <div className="grid gap-4">
+              {featuredJobs.map(job => (
+                <JobCard key={job.id} job={job} featured citySlug="brussels" />
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
+
       {/* Stats Section */}
-      <section className="bg-white dark:bg-gray-800 py-8 border-b border-gray-200 dark:border-gray-700">
+      <section className="bg-white dark:bg-gray-800 py-12 border-y border-gray-200 dark:border-gray-700">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
+            <div>
+              <div className="text-3xl font-bold text-eu-blue">6</div>
+              <div className="text-gray-600 dark:text-gray-300">European Cities</div>
+            </div>
             <div>
               <div className="text-3xl font-bold text-eu-blue">500+</div>
               <div className="text-gray-600 dark:text-gray-300">Active Jobs</div>
@@ -54,76 +98,6 @@ export default async function HomePage() {
               <div className="text-3xl font-bold text-eu-blue">10K+</div>
               <div className="text-gray-600 dark:text-gray-300">Job Seekers</div>
             </div>
-            <div>
-              <div className="text-3xl font-bold text-eu-blue">50+</div>
-              <div className="text-gray-600 dark:text-gray-300">New Jobs Daily</div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Featured Jobs */}
-      <section className="py-16 bg-gray-50 dark:bg-gray-900">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center mb-8">
-            <h2 className="text-3xl font-bold text-gray-900 dark:text-white">Featured Jobs</h2>
-            <Link href="/jobs" className="text-eu-blue font-medium hover:underline">
-              View all jobs &rarr;
-            </Link>
-          </div>
-
-          <div className="grid gap-4">
-            {featuredJobs.map(job => (
-              <JobCard key={job.id} job={job} featured />
-            ))}
-            {featuredJobs.length === 0 && (
-              <p className="text-gray-500 dark:text-gray-400 text-center py-8">No featured jobs at the moment.</p>
-            )}
-          </div>
-        </div>
-      </section>
-
-      {/* Categories Section */}
-      <section className="py-16 bg-white dark:bg-gray-800">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">Browse by Category</h2>
-            <p className="text-gray-600 dark:text-gray-300">Find opportunities in your area of expertise</p>
-          </div>
-
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
-            {categories.map(category => (
-              <Link
-                key={category.id}
-                href={`/categories/${category.slug}`}
-                className="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6 text-center hover:border-eu-blue border-2 border-transparent dark:border-gray-700 dark:hover:border-eu-blue transition-colors"
-              >
-                <div className="text-4xl mb-3">{category.icon}</div>
-                <h3 className="font-semibold text-gray-900 dark:text-white mb-1">{category.name}</h3>
-                <p className="text-sm text-gray-500 dark:text-gray-400">{category.description}</p>
-              </Link>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Recent Jobs */}
-      <section className="py-16 bg-gray-50 dark:bg-gray-900">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center mb-8">
-            <h2 className="text-3xl font-bold text-gray-900 dark:text-white">Latest Jobs</h2>
-            <Link href="/jobs" className="text-eu-blue font-medium hover:underline">
-              View all jobs &rarr;
-            </Link>
-          </div>
-
-          <div className="grid md:grid-cols-2 gap-4">
-            {recentJobs.map(job => (
-              <JobCard key={job.id} job={job} />
-            ))}
-            {recentJobs.length === 0 && (
-              <p className="text-gray-500 dark:text-gray-400 text-center py-8 col-span-2">No jobs found.</p>
-            )}
           </div>
         </div>
       </section>
@@ -135,7 +109,7 @@ export default async function HomePage() {
             Ready to Hire Top EU Talent?
           </h2>
           <p className="text-gray-300 mb-8 max-w-2xl mx-auto">
-            Post your job and reach thousands of qualified professionals in the EU bubble.
+            Post your job and reach thousands of qualified professionals across Europe.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link href="/post-job" className="bg-eu-yellow text-eu-dark px-8 py-4 rounded-lg font-semibold hover:bg-yellow-400 transition-colors">
@@ -145,34 +119,6 @@ export default async function HomePage() {
               View Pricing
             </Link>
           </div>
-        </div>
-      </section>
-
-      {/* Newsletter Section */}
-      <section className="py-16 bg-gray-100 dark:bg-gray-700">
-        <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">
-            Get EU Jobs in Your Inbox
-          </h2>
-          <p className="text-gray-600 dark:text-gray-300 mb-8">
-            Subscribe to our weekly newsletter and never miss a great opportunity.
-          </p>
-          <form
-            action="/api/newsletter/signup"
-            method="POST"
-            className="flex flex-col sm:flex-row gap-4 max-w-md mx-auto"
-          >
-            <input
-              type="email"
-              name="email"
-              required
-              placeholder="Enter your email"
-              className="input-field flex-1 dark:bg-gray-800 dark:border-gray-600 dark:text-white dark:placeholder-gray-400"
-            />
-            <button type="submit" className="btn-primary">
-              Subscribe
-            </button>
-          </form>
         </div>
       </section>
     </div>

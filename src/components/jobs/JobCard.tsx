@@ -6,9 +6,10 @@ import { Job, POLICY_TAG_LABELS, PolicyTag } from '@/types'
 interface JobCardProps {
   job: Job
   featured?: boolean
+  citySlug?: string
 }
 
-export default function JobCard({ job, featured = false }: JobCardProps) {
+export default function JobCard({ job, featured = false, citySlug }: JobCardProps) {
   const formatSalary = () => {
     if (!job.salaryMin) return null
     if (job.salaryMin === job.salaryMax) {
@@ -72,9 +73,10 @@ export default function JobCard({ job, featured = false }: JobCardProps) {
   }
 
   const deadline = getDeadlineUrgency()
+  const jobHref = citySlug ? `/${citySlug}/jobs/${job.slug}` : `/jobs/${job.slug}`
 
   return (
-    <Link href={`/jobs/${job.slug}`}>
+    <Link href={jobHref}>
       <div className={`card hover:border-eu-blue dark:hover:border-eu-yellow border-2 border-transparent cursor-pointer ${
         featured ? 'ring-2 ring-eu-yellow' : ''
       }`}>

@@ -15,7 +15,7 @@ export default function PrivacyPage() {
         <div className="bg-white rounded-xl shadow-md p-8 prose max-w-none">
           <h2 className="text-2xl font-bold text-gray-900 mb-4">1. Introduction</h2>
           <p className="text-gray-600 mb-6">
-            EU Jobs Brussels (&quot;we&quot;, &quot;our&quot;, or &quot;us&quot;) is committed to protecting your privacy. This Privacy Policy 
+            EU Jobs (&quot;we&quot;, &quot;our&quot;, or &quot;us&quot;) is committed to protecting your privacy. This Privacy Policy 
             explains how we collect, use, disclose, and safeguard your information when you visit our website 
             and use our services.
           </p>
@@ -88,7 +88,7 @@ export default function PrivacyPage() {
             If you have any questions about this Privacy Policy, please contact us at:
           </p>
           <div className="bg-gray-50 rounded-lg p-4 mb-6">
-            <p className="text-gray-700"><strong>Email:</strong> privacy@eujobs.brussels</p>
+            <p className="text-gray-700"><strong>Email:</strong> privacy@eujobs.co</p>
             <p className="text-gray-700"><strong>Address:</strong> Rue de la Loi 200, 1049 Brussels, Belgium</p>
           </div>
 

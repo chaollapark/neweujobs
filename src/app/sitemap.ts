@@ -13,44 +13,77 @@ import BibArticle from '@/models/BibArticle'
 import BibEditorialPage from '@/models/BibEditorialPage'
 import CareerGuide from '@/models/CareerGuide'
 import OrgCareerGuide from '@/models/OrgCareerGuide'
+import { CITIES } from '@/lib/cities'
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://eujobs.brussels'
+  const baseUrl = 'https://eujobs.co'
 
-  // Static pages
-  const staticPages: MetadataRoute.Sitemap = [
+  // Root + global static pages
+  const globalPages: MetadataRoute.Sitemap = [
     { url: baseUrl, lastModified: new Date(), changeFrequency: 'daily', priority: 1.0 },
-    { url: `${baseUrl}/jobs`, lastModified: new Date(), changeFrequency: 'daily', priority: 0.9 },
-    { url: `${baseUrl}/companies`, lastModified: new Date(), changeFrequency: 'weekly', priority: 0.7 },
+    { url: `${baseUrl}/about`, lastModified: new Date(), changeFrequency: 'monthly', priority: 0.4 },
+    { url: `${baseUrl}/contact`, lastModified: new Date(), changeFrequency: 'monthly', priority: 0.4 },
     { url: `${baseUrl}/pricing`, lastModified: new Date(), changeFrequency: 'monthly', priority: 0.6 },
     { url: `${baseUrl}/post-job`, lastModified: new Date(), changeFrequency: 'monthly', priority: 0.6 },
-    { url: `${baseUrl}/fairpay`, lastModified: new Date(), changeFrequency: 'monthly', priority: 0.5 },
-    { url: `${baseUrl}/lobbying-entities`, lastModified: new Date(), changeFrequency: 'weekly', priority: 0.7 },
-    { url: `${baseUrl}/lobbying-entities/interests`, lastModified: new Date(), changeFrequency: 'weekly', priority: 0.5 },
-    { url: `${baseUrl}/blog`, lastModified: new Date(), changeFrequency: 'weekly', priority: 0.7 },
-    { url: `${baseUrl}/contact`, lastModified: new Date(), changeFrequency: 'monthly', priority: 0.4 },
-    // Best in Brussels static pages
-    { url: `${baseUrl}/best-in-brussels`, lastModified: new Date(), changeFrequency: 'weekly', priority: 0.8 },
-    { url: `${baseUrl}/best-in-brussels/consultancies`, lastModified: new Date(), changeFrequency: 'weekly', priority: 0.7 },
-    { url: `${baseUrl}/best-in-brussels/consultants`, lastModified: new Date(), changeFrequency: 'weekly', priority: 0.7 },
-    { url: `${baseUrl}/best-in-brussels/law-firms`, lastModified: new Date(), changeFrequency: 'weekly', priority: 0.6 },
-    { url: `${baseUrl}/best-in-brussels/intelligence-systems`, lastModified: new Date(), changeFrequency: 'weekly', priority: 0.6 },
-    { url: `${baseUrl}/best-in-brussels/digital-tools`, lastModified: new Date(), changeFrequency: 'weekly', priority: 0.6 },
-    { url: `${baseUrl}/best-in-brussels/trainers`, lastModified: new Date(), changeFrequency: 'weekly', priority: 0.6 },
-    { url: `${baseUrl}/best-in-brussels/specialists`, lastModified: new Date(), changeFrequency: 'weekly', priority: 0.6 },
-    { url: `${baseUrl}/best-in-brussels/articles`, lastModified: new Date(), changeFrequency: 'weekly', priority: 0.6 },
-    { url: `${baseUrl}/best-in-brussels/guides`, lastModified: new Date(), changeFrequency: 'monthly', priority: 0.5 },
   ]
 
-  // Seniority pages
+  // Per-city static pages
+  const cityPages: MetadataRoute.Sitemap = CITIES.flatMap((city) => {
+    const pages: MetadataRoute.Sitemap = [
+      { url: `${baseUrl}/${city.slug}`, lastModified: new Date(), changeFrequency: 'daily', priority: 0.9 },
+      { url: `${baseUrl}/${city.slug}/jobs`, lastModified: new Date(), changeFrequency: 'daily', priority: 0.9 },
+      { url: `${baseUrl}/${city.slug}/companies`, lastModified: new Date(), changeFrequency: 'weekly', priority: 0.7 },
+      { url: `${baseUrl}/${city.slug}/categories`, lastModified: new Date(), changeFrequency: 'weekly', priority: 0.6 },
+      { url: `${baseUrl}/${city.slug}/career-guides`, lastModified: new Date(), changeFrequency: 'weekly', priority: 0.6 },
+    ]
+
+    // Brussels-only pages
+    if (city.features.bestInBrussels) {
+      pages.push(
+        { url: `${baseUrl}/${city.slug}/best-in-brussels`, lastModified: new Date(), changeFrequency: 'weekly', priority: 0.8 },
+        { url: `${baseUrl}/${city.slug}/best-in-brussels/consultancies`, lastModified: new Date(), changeFrequency: 'weekly', priority: 0.7 },
+        { url: `${baseUrl}/${city.slug}/best-in-brussels/consultants`, lastModified: new Date(), changeFrequency: 'weekly', priority: 0.7 },
+        { url: `${baseUrl}/${city.slug}/best-in-brussels/law-firms`, lastModified: new Date(), changeFrequency: 'weekly', priority: 0.6 },
+        { url: `${baseUrl}/${city.slug}/best-in-brussels/intelligence-systems`, lastModified: new Date(), changeFrequency: 'weekly', priority: 0.6 },
+        { url: `${baseUrl}/${city.slug}/best-in-brussels/digital-tools`, lastModified: new Date(), changeFrequency: 'weekly', priority: 0.6 },
+        { url: `${baseUrl}/${city.slug}/best-in-brussels/trainers`, lastModified: new Date(), changeFrequency: 'weekly', priority: 0.6 },
+        { url: `${baseUrl}/${city.slug}/best-in-brussels/specialists`, lastModified: new Date(), changeFrequency: 'weekly', priority: 0.6 },
+        { url: `${baseUrl}/${city.slug}/best-in-brussels/articles`, lastModified: new Date(), changeFrequency: 'weekly', priority: 0.6 },
+        { url: `${baseUrl}/${city.slug}/best-in-brussels/guides`, lastModified: new Date(), changeFrequency: 'monthly', priority: 0.5 },
+      )
+    }
+
+    if (city.features.lobbyingEntities) {
+      pages.push(
+        { url: `${baseUrl}/${city.slug}/lobbying-entities`, lastModified: new Date(), changeFrequency: 'weekly', priority: 0.7 },
+        { url: `${baseUrl}/${city.slug}/lobbying-entities/interests`, lastModified: new Date(), changeFrequency: 'weekly', priority: 0.5 },
+      )
+    }
+
+    if (city.features.fairpay) {
+      pages.push(
+        { url: `${baseUrl}/${city.slug}/fairpay`, lastModified: new Date(), changeFrequency: 'monthly', priority: 0.5 },
+      )
+    }
+
+    if (city.features.blog) {
+      pages.push(
+        { url: `${baseUrl}/${city.slug}/blog`, lastModified: new Date(), changeFrequency: 'weekly', priority: 0.7 },
+      )
+    }
+
+    return pages
+  })
+
+  // Seniority pages (Brussels)
   const seniorityPages: MetadataRoute.Sitemap = ['intern', 'junior', 'mid-level', 'senior'].map(s => ({
-    url: `${baseUrl}/jobs?seniority=${s}`,
+    url: `${baseUrl}/brussels/jobs?seniority=${s}`,
     lastModified: new Date(),
     changeFrequency: 'daily' as const,
     priority: 0.6,
   }))
 
-  // Job pages
+  // Job pages — all under /brussels for now (city matching can be refined later)
   let jobPages: MetadataRoute.Sitemap = []
   try {
     await dbConnect()
@@ -65,7 +98,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       const ageInDays = (now - new Date(job.createdAt).getTime()) / (1000 * 60 * 60 * 24)
       const priority = isRetired ? 0.2 : ageInDays < 7 ? 0.9 : ageInDays < 30 ? 0.7 : 0.5
       return {
-        url: `${baseUrl}/jobs/${job.slug}`,
+        url: `${baseUrl}/brussels/jobs/${job.slug}`,
         lastModified: new Date(job.createdAt),
         changeFrequency: isRetired ? 'yearly' as const : 'weekly' as const,
         priority,
@@ -75,14 +108,14 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     console.error('Error generating job sitemap entries:', e)
   }
 
-  // Lobbying entity pages
+  // Lobbying entity pages (Brussels only)
   let entityPages: MetadataRoute.Sitemap = []
   try {
     await dbConnect()
     const entities = await LobbyingEntityModel.find({}, { slug: 1, updatedAt: 1 }).limit(5000)
 
     entityPages = entities.map((entity: any) => ({
-      url: `${baseUrl}/lobbying-entities/${entity.slug}`,
+      url: `${baseUrl}/brussels/lobbying-entities/${entity.slug}`,
       lastModified: entity.updatedAt || new Date(),
       changeFrequency: 'monthly' as const,
       priority: 0.4,
@@ -91,13 +124,13 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     console.error('Error generating entity sitemap entries:', e)
   }
 
-  // Blog pages (career guides from MongoDB)
+  // Blog pages (Brussels only)
   let blogPages: MetadataRoute.Sitemap = []
   try {
     await dbConnect()
     const guides = await CareerGuide.find({}, { slug: 1, updatedAt: 1 }).lean()
     blogPages = guides.map((guide: any) => ({
-      url: `${baseUrl}/blog/${encodeURIComponent(guide.slug)}`,
+      url: `${baseUrl}/brussels/blog/${encodeURIComponent(guide.slug)}`,
       lastModified: guide.updatedAt || new Date(),
       changeFrequency: 'weekly' as const,
       priority: 0.6,
@@ -106,25 +139,17 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     console.error('Error generating blog sitemap entries:', e)
   }
 
-  // Organization career guides
+  // Organization career guides (Brussels)
   let orgGuidePages: MetadataRoute.Sitemap = []
   try {
     await dbConnect()
     const orgGuides = await OrgCareerGuide.find({}, { slug: 1, updatedAt: 1 }).lean()
-    orgGuidePages = [
-      {
-        url: `${baseUrl}/career-guides`,
-        lastModified: new Date(),
-        changeFrequency: 'weekly' as const,
-        priority: 0.6,
-      },
-      ...orgGuides.map((guide: any) => ({
-        url: `${baseUrl}/career-guides/${guide.slug}`,
-        lastModified: guide.updatedAt || new Date(),
-        changeFrequency: 'monthly' as const,
-        priority: 0.4,
-      })),
-    ]
+    orgGuidePages = orgGuides.map((guide: any) => ({
+      url: `${baseUrl}/brussels/career-guides/${guide.slug}`,
+      lastModified: guide.updatedAt || new Date(),
+      changeFrequency: 'monthly' as const,
+      priority: 0.4,
+    }))
   } catch (e) {
     console.error('Error generating org career guide sitemap entries:', e)
   }
@@ -148,7 +173,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
     const mapSlugs = (items: any[], pathPrefix: string, priority: number) =>
       items.map((item: any) => ({
-        url: `${baseUrl}/best-in-brussels/${pathPrefix}/${item.slug}`,
+        url: `${baseUrl}/brussels/best-in-brussels/${pathPrefix}/${item.slug}`,
         lastModified: item.updatedAt || new Date(),
         changeFrequency: 'monthly' as const,
         priority,
@@ -169,5 +194,5 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     console.error('Error generating BIB sitemap entries:', e)
   }
 
-  return [...staticPages, ...seniorityPages, ...jobPages, ...entityPages, ...blogPages, ...orgGuidePages, ...bibPages]
+  return [...globalPages, ...cityPages, ...seniorityPages, ...jobPages, ...entityPages, ...blogPages, ...orgGuidePages, ...bibPages]
 }

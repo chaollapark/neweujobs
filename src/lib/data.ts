@@ -3,6 +3,16 @@ import dbConnect from '@/lib/dbConnect'
 import { JobModel, fetchJobs, findJobBySlug } from '@/models/Job'
 export { categories } from '@/lib/categories'
 import { categories } from '@/lib/categories'
+import { getCityConfig } from '@/lib/cities'
+
+// Build a MongoDB filter for city-based queries using cityMatchers
+export function buildCityFilter(citySlug?: string): Record<string, any> {
+  if (!citySlug) return {}
+  const config = getCityConfig(citySlug)
+  if (!config) return {}
+  const regex = new RegExp(config.cityMatchers.join('|'), 'i')
+  return { city: { $regex: regex } }
+}
 
 // Map experience level from MongoDB format
 function mapExperienceLevel(seniority: string): 'entry' | 'junior' | 'mid' | 'senior' | 'executive' {
@@ -110,7 +120,7 @@ export function transformMongoJob(mongoJob: any): Job {
     slug: (mongoJob.companyName || 'unknown').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/-+$/, ''),
     description: '',
     website: mongoJob.applyLink ? (() => { try { return new URL(mongoJob.applyLink).origin } catch { return '' } })() : '',
-    location: mongoJob.city ? `${mongoJob.city}, ${mongoJob.country || 'Belgium'}` : 'Brussels, Belgium',
+    location: mongoJob.city ? `${mongoJob.city}, ${mongoJob.country || ''}`.replace(/, $/, '') : '',
     industry: category.name,
     verified: true,
     createdAt: new Date(mongoJob.createdAt || Date.now()),
@@ -132,7 +142,7 @@ export function transformMongoJob(mongoJob: any): Job {
     salaryMax: mongoJob.salary || undefined,
     salary: mongoJob.salary,
     salaryCurrency: 'EUR',
-    location: mongoJob.city ? `${mongoJob.city}, ${mongoJob.country || 'Belgium'}` : 'Brussels, Belgium',
+    location: mongoJob.city ? `${mongoJob.city}, ${mongoJob.country || ''}`.replace(/, $/, '') : '',
     remoteType: 'onsite',
     contractType: mapContractType(mongoJob.type || '') as any,
     experienceLevel: mapExperienceLevel(mongoJob.seniority || 'mid-level'),
@@ -164,10 +174,11 @@ export async function getJobBySlug(slug: string): Promise<Job | undefined> {
   return transformMongoJob(mongoJob)
 }
 
-export async function getCompanyBySlug(slug: string): Promise<Company | undefined> {
+export async function getCompanyBySlug(slug: string, citySlug?: string): Promise<Company | undefined> {
   await dbConnect()
+  const cityFilter = buildCityFilter(citySlug)
   const jobs = await JobModel.find(
-    { companyName: { $exists: true } },
+    { companyName: { $exists: true }, ...cityFilter },
     { companyName: 1, applyLink: 1, city: 1, country: 1, createdAt: 1 }
   ).limit(500)
 
@@ -179,17 +190,18 @@ export function getCategoryBySlug(slug: string): Category | undefined {
   return categories.find(category => category.slug === slug)
 }
 
-export async function getJobsByCategory(categorySlug: string): Promise<Job[]> {
+export async function getJobsByCategory(categorySlug: string, citySlug?: string): Promise<Job[]> {
   await dbConnect()
-  const allJobs = await fetchJobs(200)
+  const allJobs = await fetchJobs(200, buildCityFilter(citySlug))
   const transformed = allJobs.map(transformMongoJob)
   return transformed.filter((job: Job) => job.category.slug === categorySlug)
 }
 
-export async function getJobsByCompany(companySlug: string): Promise<Job[]> {
+export async function getJobsByCompany(companySlug: string, citySlug?: string): Promise<Job[]> {
   await dbConnect()
+  const cityFilter = buildCityFilter(citySlug)
   const jobs = await JobModel.find(
-    { plan: { $nin: ['pending'] }, status: { $ne: 'retired' } },
+    { plan: { $nin: ['pending'] }, status: { $ne: 'retired' }, ...cityFilter },
     {},
     { sort: '-createdAt', limit: 100 }
   )
@@ -197,19 +209,21 @@ export async function getJobsByCompany(companySlug: string): Promise<Job[]> {
   return transformed.filter((job: Job) => job.company.slug === companySlug)
 }
 
-export async function getFeaturedJobs(): Promise<Job[]> {
+export async function getFeaturedJobs(citySlug?: string): Promise<Job[]> {
   await dbConnect()
+  const cityFilter = buildCityFilter(citySlug)
   const proJobs = await JobModel.find(
-    { plan: { $in: ['pro', 'recruiter'] }, status: { $ne: 'retired' } },
+    { plan: { $in: ['pro', 'recruiter'] }, status: { $ne: 'retired' }, ...cityFilter },
     {},
     { sort: '-createdAt', limit: 6 }
   )
   return JSON.parse(JSON.stringify(proJobs)).map(transformMongoJob)
 }
 
-export async function searchJobs(query: string): Promise<Job[]> {
+export async function searchJobs(query: string, citySlug?: string): Promise<Job[]> {
   await dbConnect()
   const regex = new RegExp(query, 'i')
+  const cityFilter = buildCityFilter(citySlug)
   const jobs = await JobModel.find(
     {
       $or: [
@@ -219,6 +233,7 @@ export async function searchJobs(query: string): Promise<Job[]> {
       ],
       plan: { $nin: ['pending'] },
       status: { $ne: 'retired' },
+      ...cityFilter,
     },
     {},
     { sort: '-createdAt', limit: 50 }
@@ -226,8 +241,8 @@ export async function searchJobs(query: string): Promise<Job[]> {
   return JSON.parse(JSON.stringify(jobs)).map(transformMongoJob)
 }
 
-export async function getLatestJobs(limit: number = 10): Promise<Job[]> {
-  const mongoJobs = await fetchJobs(limit)
+export async function getLatestJobs(limit: number = 10, citySlug?: string): Promise<Job[]> {
+  const mongoJobs = await fetchJobs(limit, buildCityFilter(citySlug))
   return mongoJobs.map(transformMongoJob)
 }
 
@@ -245,7 +260,7 @@ function getUniqueCompanies(jobs: any[]): Company[] {
         slug,
         description: '',
         website: job.applyLink ? (() => { try { return new URL(job.applyLink).origin } catch { return '' } })() : '',
-        location: job.city ? `${job.city}, ${job.country || 'Belgium'}` : 'Brussels, Belgium',
+        location: job.city ? `${job.city}, ${job.country || ''}`.replace(/, $/, '') : '',
         industry: category.name,
         verified: true,
         createdAt: new Date(job.createdAt || Date.now()),
@@ -256,20 +271,22 @@ function getUniqueCompanies(jobs: any[]): Company[] {
   return Array.from(companyMap.values())
 }
 
-export async function getAllCompanies(): Promise<Company[]> {
+export async function getAllCompanies(citySlug?: string): Promise<Company[]> {
   await dbConnect()
+  const cityFilter = buildCityFilter(citySlug)
   const jobs = await JobModel.find(
-    { companyName: { $exists: true, $ne: '' }, plan: { $nin: ['pending'] }, status: { $ne: 'retired' } },
+    { companyName: { $exists: true, $ne: '' }, plan: { $nin: ['pending'] }, status: { $ne: 'retired' }, ...cityFilter },
     { companyName: 1, applyLink: 1, city: 1, country: 1, createdAt: 1 }
   ).sort('-createdAt').limit(500)
 
   return getUniqueCompanies(jobs.map((j: any) => JSON.parse(JSON.stringify(j))))
 }
 
-export async function getJobCountByCompany(companySlug: string): Promise<number> {
+export async function getJobCountByCompany(companySlug: string, citySlug?: string): Promise<number> {
   await dbConnect()
+  const cityFilter = buildCityFilter(citySlug)
   const jobs = await JobModel.find(
-    { plan: { $nin: ['pending'] }, status: { $ne: 'retired' } },
+    { plan: { $nin: ['pending'] }, status: { $ne: 'retired' }, ...cityFilter },
     { companyName: 1 }
   ).limit(1000)
 

@@ -17,8 +17,8 @@ export default function AboutPage() {
             Connecting EU Talent with Opportunity
           </h1>
           <p className="text-xl text-gray-300 max-w-3xl mx-auto">
-            EU Jobs Brussels is the leading job board for professionals seeking careers in EU institutions, 
-            NGOs, think tanks, and public affairs in Brussels.
+            EU Jobs is the leading job board for professionals seeking careers in EU institutions,
+            NGOs, think tanks, and public affairs across Europe.
           </p>
         </div>
       </div>
@@ -34,13 +34,13 @@ export default function AboutPage() {
               for everyone interested in European affairs.
             </p>
             <p className="text-gray-600 mb-4">
-              Whether you're a recent graduate looking for your first traineeship at the European Commission, 
-              or a seasoned professional seeking a senior role in public affairs, we're here to help you 
+              Whether you're a recent graduate looking for your first traineeship at the European Commission,
+              or a seasoned professional seeking a senior role in public affairs, we're here to help you
               find your next opportunity.
             </p>
             <p className="text-gray-600">
-              For employers, we provide a targeted platform to reach qualified candidates who are 
-              passionate about European policy and understand the unique dynamics of the Brussels ecosystem.
+              For employers, we provide a targeted platform to reach qualified candidates who are
+              passionate about European policy and understand the unique dynamics of the EU ecosystem.
             </p>
           </div>
           <div className="bg-white rounded-2xl shadow-lg p-8">
@@ -124,7 +124,7 @@ export default function AboutPage() {
           <h2 className="text-3xl font-bold text-white mb-4">Ready to Get Started?</h2>
           <p className="text-gray-300 mb-8">Join thousands of professionals finding their dream EU careers.</p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link href="/jobs" className="bg-white text-eu-blue px-8 py-4 rounded-lg font-semibold hover:bg-gray-100 transition-colors">
+            <Link href="/brussels/jobs" className="bg-white text-eu-blue px-8 py-4 rounded-lg font-semibold hover:bg-gray-100 transition-colors">
               Browse Jobs
             </Link>
             <Link href="/post-job" className="bg-eu-yellow text-eu-dark px-8 py-4 rounded-lg font-semibold hover:bg-yellow-400 transition-colors">

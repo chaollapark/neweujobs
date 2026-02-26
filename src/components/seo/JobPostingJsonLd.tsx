@@ -48,7 +48,6 @@ export default function JobPostingJsonLd({ job }: JobPostingJsonLdProps) {
       address: {
         '@type': 'PostalAddress',
         addressLocality: job.location || 'Brussels',
-        addressCountry: 'BE',
       },
     },
     baseSalary: {

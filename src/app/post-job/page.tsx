@@ -50,7 +50,7 @@ function PostJobForm() {
     description: '',
     salary: '',
     city: '',
-    country: 'Belgium',
+    country: '',
     contactEmail: '',
     contactName: '',
     contactPhone: '',
