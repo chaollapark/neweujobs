@@ -97,6 +97,11 @@ const JobSchema = new Schema({
     type: [String],
     default: [],
   },
+  status: {
+    type: String,
+    enum: ['active', 'retired'],
+    default: 'active',
+  },
 }, { timestamps: true });
 
 JobSchema.pre('save', function () {
@@ -112,7 +117,7 @@ export async function fetchJobs(limit: number = 10) {
     await dbConnect();
 
     const proJobs = await JobModel.find(
-      { plan: { $in: ['recruiter', 'pro'] } },
+      { plan: { $in: ['recruiter', 'pro'] }, status: { $ne: 'retired' } },
       {},
       { sort: '-createdAt', limit }
     );
@@ -123,6 +128,7 @@ export async function fetchJobs(limit: number = 10) {
         plan: {
           $nin: ['pro', 'pending', 'recruiter'],
         },
+        status: { $ne: 'retired' },
       },
       {},
       { sort: '-createdAt', limit: remainingLimit }
@@ -150,7 +156,7 @@ export async function fetchJobsBySource(source: string | string[]) {
   await dbConnect();
 
   const featuredJobs = await JobModel.find(
-    { plan: { $in: ['pro', 'recruiter'] } },
+    { plan: { $in: ['pro', 'recruiter'] }, status: { $ne: 'retired' } },
     {},
     { sort: '-createdAt', limit: 5 }
   );
@@ -161,6 +167,7 @@ export async function fetchJobsBySource(source: string | string[]) {
     {
       source: sourceQuery,
       plan: { $nin: ['pro', 'recruiter', 'pending'] },
+      status: { $ne: 'retired' },
     },
     {},
     { sort: '-createdAt', limit: 50 }
@@ -176,6 +183,7 @@ export async function fetchJobsBySeniority(seniority: string) {
     {
       seniority,
       plan: { $in: ['pro', 'recruiter'] },
+      status: { $ne: 'retired' },
     },
     {},
     { sort: '-createdAt', limit: 5 }
@@ -185,6 +193,7 @@ export async function fetchJobsBySeniority(seniority: string) {
     {
       seniority,
       plan: { $nin: ['pro', 'recruiter', 'pending'] },
+      status: { $ne: 'retired' },
     },
     {},
     { sort: '-createdAt', limit: 50 }
@@ -221,6 +230,7 @@ export async function fetchJobsForEntity(entityWebsiteUrl?: string, entityName?:
               $regex: new RegExp(entityDomain.replace(/\./g, '\\.'), 'i'),
             },
             plan: { $nin: ['pending'] },
+            status: { $ne: 'retired' },
           },
           {},
           { sort: { createdAt: -1 }, limit }
@@ -241,6 +251,7 @@ export async function fetchJobsForEntity(entityWebsiteUrl?: string, entityName?:
           _id: { $nin: existingJobIds },
           companyName: { $regex: new RegExp(entityName, 'i') },
           plan: { $nin: ['pending'] },
+          status: { $ne: 'retired' },
         },
         {},
         { sort: { createdAt: -1 }, limit: remainingLimit }
@@ -257,6 +268,7 @@ export async function fetchJobsForEntity(entityWebsiteUrl?: string, entityName?:
         {
           _id: { $nin: existingJobIds },
           plan: { $nin: ['pending'] },
+          status: { $ne: 'retired' },
         },
         {},
         { sort: { createdAt: -1 }, limit: remainingLimit }

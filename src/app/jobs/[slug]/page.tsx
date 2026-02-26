@@ -1,7 +1,7 @@
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import { Metadata } from 'next'
-import { getJobBySlug } from '@/lib/data'
+import { getJobBySlug, getLatestJobs } from '@/lib/data'
 import { POLICY_TAG_LABELS, PolicyTag } from '@/types'
 
 export const revalidate = 60
@@ -103,7 +103,9 @@ export default async function JobDetailPage({ params }: JobDetailPageProps) {
     return null
   }
 
-  const deadline = getDeadlineUrgency()
+  const isRetired = job.status === 'expired'
+  const deadline = isRetired ? null : getDeadlineUrgency()
+  const activeJobs = isRetired ? await getLatestJobs(3) : []
 
   // JSON-LD structured data
   const jsonLd = {
@@ -159,6 +161,23 @@ export default async function JobDetailPage({ params }: JobDetailPageProps) {
           </nav>
         </div>
       </div>
+
+      {/* Position Closed Banner */}
+      {isRetired && (
+        <div className="bg-amber-50 dark:bg-amber-900/20 border-b border-amber-200 dark:border-amber-800">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+            <div className="flex items-center gap-3">
+              <svg className="w-6 h-6 text-amber-600 dark:text-amber-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z" />
+              </svg>
+              <div>
+                <p className="font-semibold text-amber-800 dark:text-amber-300">This position has been closed</p>
+                <p className="text-sm text-amber-700 dark:text-amber-400">This job is no longer accepting applications. Browse our latest openings below.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="flex flex-col lg:flex-row gap-8">
@@ -292,7 +311,16 @@ export default async function JobDetailPage({ params }: JobDetailPageProps) {
           {/* Sidebar */}
           <aside className="lg:w-80 flex-shrink-0">
             <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6 sticky top-24">
-              {applyUrl ? (
+              {isRetired ? (
+                <div className="mb-4">
+                  <div className="bg-gray-100 dark:bg-gray-700 rounded-lg p-4 text-center">
+                    <p className="font-semibold text-gray-500 dark:text-gray-400">Position Closed</p>
+                    <Link href="/jobs" className="btn-primary w-full mt-3 text-sm py-3 block text-center">
+                      Browse Active Jobs
+                    </Link>
+                  </div>
+                </div>
+              ) : applyUrl ? (
                 <a
                   href={applyUrl}
                   target={applyUrl.startsWith('mailto:') ? undefined : '_blank'}
@@ -401,6 +429,34 @@ export default async function JobDetailPage({ params }: JobDetailPageProps) {
             </div>
           </aside>
         </div>
+
+        {/* Active Job Suggestions for Retired Jobs */}
+        {isRetired && activeJobs.length > 0 && (
+          <section className="mt-10">
+            <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">Latest Active Openings</h2>
+            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              {activeJobs.map((activeJob) => (
+                <Link
+                  key={activeJob.id}
+                  href={`/jobs/${activeJob.slug}`}
+                  className="block p-5 bg-white dark:bg-gray-800 rounded-xl shadow-md border border-gray-200 dark:border-gray-700 hover:border-eu-blue dark:hover:border-eu-blue transition-colors"
+                >
+                  <h3 className="font-semibold text-gray-900 dark:text-white mb-1 line-clamp-2">{activeJob.title}</h3>
+                  <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">{activeJob.company.name}</p>
+                  <div className="flex flex-wrap gap-2 text-xs">
+                    <span className="badge-blue">{activeJob.location}</span>
+                    <span className="badge-green">{activeJob.contractType}</span>
+                  </div>
+                </Link>
+              ))}
+            </div>
+            <div className="mt-6 text-center">
+              <Link href="/jobs" className="text-eu-blue dark:text-blue-400 font-medium hover:underline">
+                View all active jobs &rarr;
+              </Link>
+            </div>
+          </section>
+        )}
       </div>
     </div>
   )
