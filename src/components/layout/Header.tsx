@@ -4,8 +4,22 @@ import Link from 'next/link'
 import { useState } from 'react'
 import DarkModeToggle from './DarkModeToggle'
 
+const bibLinks = [
+  { href: '/best-in-brussels', label: 'Overview' },
+  { href: '/best-in-brussels/consultancies', label: 'Consultancies' },
+  { href: '/best-in-brussels/consultants', label: 'Consultants' },
+  { href: '/best-in-brussels/law-firms', label: 'Law Firms' },
+  { href: '/best-in-brussels/intelligence-systems', label: 'Intelligence Systems' },
+  { href: '/best-in-brussels/digital-tools', label: 'Digital Tools' },
+  { href: '/best-in-brussels/trainers', label: 'Trainers' },
+  { href: '/best-in-brussels/specialists', label: 'Specialist Areas' },
+  { href: '/best-in-brussels/articles', label: 'Articles' },
+  { href: '/best-in-brussels/guides', label: 'Guides' },
+]
+
 export default function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  const [bibOpen, setBibOpen] = useState(false)
 
   return (
     <header className="bg-white dark:bg-gray-800 shadow-sm sticky top-0 z-50">
@@ -22,7 +36,7 @@ export default function Header() {
           </div>
 
           {/* Desktop Navigation */}
-          <div className="hidden md:flex items-center space-x-8">
+          <div className="hidden md:flex items-center space-x-6">
             <Link href="/jobs" className="text-gray-700 dark:text-gray-300 hover:text-eu-blue dark:hover:text-eu-yellow font-medium">
               Find Jobs
             </Link>
@@ -32,6 +46,37 @@ export default function Header() {
             <Link href="/lobbying-entities" className="text-gray-700 dark:text-gray-300 hover:text-eu-blue dark:hover:text-eu-yellow font-medium">
               Lobbying Entities
             </Link>
+
+            {/* Best in Brussels Dropdown */}
+            <div
+              className="relative"
+              onMouseEnter={() => setBibOpen(true)}
+              onMouseLeave={() => setBibOpen(false)}
+            >
+              <Link
+                href="/best-in-brussels"
+                className="text-gray-700 dark:text-gray-300 hover:text-eu-blue dark:hover:text-eu-yellow font-medium inline-flex items-center gap-1"
+              >
+                Best in Brussels
+                <svg className={`w-4 h-4 transition-transform ${bibOpen ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                </svg>
+              </Link>
+              {bibOpen && (
+                <div className="absolute top-full left-0 mt-0 w-56 bg-white dark:bg-gray-800 rounded-lg shadow-lg dark:shadow-gray-900/50 border border-gray-200 dark:border-gray-600 py-2 z-50">
+                  {bibLinks.map((link) => (
+                    <Link
+                      key={link.href}
+                      href={link.href}
+                      className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-eu-blue dark:hover:text-eu-yellow"
+                    >
+                      {link.label}
+                    </Link>
+                  ))}
+                </div>
+              )}
+            </div>
+
             <Link href="/fairpay" className="text-gray-700 dark:text-gray-300 hover:text-eu-blue dark:hover:text-eu-yellow font-medium">
               Fair Pay
             </Link>
@@ -79,6 +124,33 @@ export default function Header() {
               <Link href="/lobbying-entities" className="text-gray-700 dark:text-gray-300 hover:text-eu-blue dark:hover:text-eu-yellow font-medium">
                 Lobbying Entities
               </Link>
+
+              {/* Best in Brussels Accordion */}
+              <div>
+                <button
+                  onClick={() => setBibOpen(!bibOpen)}
+                  className="flex items-center justify-between w-full text-gray-700 dark:text-gray-300 hover:text-eu-blue dark:hover:text-eu-yellow font-medium"
+                >
+                  Best in Brussels
+                  <svg className={`w-4 h-4 transition-transform ${bibOpen ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                  </svg>
+                </button>
+                {bibOpen && (
+                  <div className="mt-2 ml-4 space-y-2">
+                    {bibLinks.map((link) => (
+                      <Link
+                        key={link.href}
+                        href={link.href}
+                        className="block text-sm text-gray-600 dark:text-gray-400 hover:text-eu-blue dark:hover:text-eu-yellow"
+                      >
+                        {link.label}
+                      </Link>
+                    ))}
+                  </div>
+                )}
+              </div>
+
               <Link href="/fairpay" className="text-gray-700 dark:text-gray-300 hover:text-eu-blue dark:hover:text-eu-yellow font-medium">
                 Fair Pay
               </Link>

@@ -4,7 +4,7 @@ export default function Footer() {
   return (
     <footer className="bg-eu-dark text-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-5 gap-8">
           {/* Brand */}
           <div className="col-span-1">
             <div className="flex items-center space-x-2 mb-4">
@@ -37,6 +37,19 @@ export default function Footer() {
               <li><Link href="/post-job" className="hover:text-eu-yellow">Post a Job</Link></li>
               <li><Link href="/pricing" className="hover:text-eu-yellow">Pricing</Link></li>
               <li><Link href="/contact" className="hover:text-eu-yellow">Contact Sales</Link></li>
+            </ul>
+          </div>
+
+          {/* Best in Brussels */}
+          <div>
+            <h3 className="font-semibold text-lg mb-4">Best in Brussels</h3>
+            <ul className="space-y-2 text-gray-300">
+              <li><Link href="/best-in-brussels/consultancies" className="hover:text-eu-yellow">Consultancies</Link></li>
+              <li><Link href="/best-in-brussels/consultants" className="hover:text-eu-yellow">Consultants</Link></li>
+              <li><Link href="/best-in-brussels/law-firms" className="hover:text-eu-yellow">Law Firms</Link></li>
+              <li><Link href="/best-in-brussels/intelligence-systems" className="hover:text-eu-yellow">Intelligence Systems</Link></li>
+              <li><Link href="/best-in-brussels/specialists" className="hover:text-eu-yellow">Specialist Areas</Link></li>
+              <li><Link href="/best-in-brussels/guides" className="hover:text-eu-yellow">Guides</Link></li>
             </ul>
           </div>
 
