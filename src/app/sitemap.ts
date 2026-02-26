@@ -55,17 +55,18 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     await dbConnect()
     const jobs = await JobModel.find(
       { slug: { $exists: true }, plan: { $nin: ['pending'] } },
-      { slug: 1, createdAt: 1 }
+      { slug: 1, createdAt: 1, status: 1 }
     ).sort('-createdAt').limit(1000)
 
     const now = Date.now()
     jobPages = jobs.map((job: any) => {
+      const isRetired = job.status === 'retired'
       const ageInDays = (now - new Date(job.createdAt).getTime()) / (1000 * 60 * 60 * 24)
-      const priority = ageInDays < 7 ? 0.9 : ageInDays < 30 ? 0.7 : 0.5
+      const priority = isRetired ? 0.2 : ageInDays < 7 ? 0.9 : ageInDays < 30 ? 0.7 : 0.5
       return {
         url: `${baseUrl}/jobs/${job.slug}`,
         lastModified: new Date(job.createdAt),
-        changeFrequency: 'weekly' as const,
+        changeFrequency: isRetired ? 'yearly' as const : 'weekly' as const,
         priority,
       }
     })
