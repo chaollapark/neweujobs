@@ -11,8 +11,12 @@ interface Props {
 }
 
 export async function generateStaticParams() {
-  const slugs = await getAllCareerGuideSlugs()
-  return slugs.map((slug) => ({ slug: encodeURIComponent(slug) }))
+  try {
+    const slugs = await getAllCareerGuideSlugs()
+    return slugs.map((slug) => ({ slug: encodeURIComponent(slug) }))
+  } catch {
+    return []
+  }
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
