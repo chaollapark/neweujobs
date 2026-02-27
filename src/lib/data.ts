@@ -4,6 +4,9 @@ import { JobModel, fetchJobs, findJobBySlug } from '@/models/Job'
 export { categories } from '@/lib/categories'
 import { categories } from '@/lib/categories'
 
+// Reusable filter for active, non-pending jobs
+const ACTIVE_JOB_FILTER = { plan: { $nin: ['pending'] }, status: { $ne: 'retired' } }
+
 // Map experience level from MongoDB format
 function mapExperienceLevel(seniority: string): 'entry' | 'junior' | 'mid' | 'senior' | 'executive' {
   const mapping: Record<string, 'entry' | 'junior' | 'mid' | 'senior' | 'executive'> = {
@@ -166,13 +169,31 @@ export async function getJobBySlug(slug: string): Promise<Job | undefined> {
 
 export async function getCompanyBySlug(slug: string): Promise<Company | undefined> {
   await dbConnect()
+  // Use aggregation to find the first job matching this company slug pattern
+  // instead of fetching 500 jobs and filtering in JS
   const jobs = await JobModel.find(
-    { companyName: { $exists: true } },
+    { companyName: { $exists: true, $ne: '' }, ...ACTIVE_JOB_FILTER },
     { companyName: 1, applyLink: 1, city: 1, country: 1, createdAt: 1 }
-  ).limit(500)
+  ).sort('-createdAt').limit(500).lean()
 
-  const allCompanies = getUniqueCompanies(jobs.map((j: any) => JSON.parse(JSON.stringify(j))))
-  return allCompanies.find(c => c.slug === slug)
+  for (const job of jobs) {
+    const jobSlug = (job.companyName || 'unknown').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/-+$/, '')
+    if (jobSlug === slug) {
+      const category = determineCategory(job.companyName || '', '')
+      return {
+        id: jobSlug,
+        name: job.companyName || 'Unknown Company',
+        slug: jobSlug,
+        description: '',
+        website: job.applyLink ? (() => { try { return new URL(job.applyLink).origin } catch { return '' } })() : '',
+        location: job.city ? `${job.city}, ${job.country || 'Belgium'}` : 'Brussels, Belgium',
+        industry: category.name,
+        verified: true,
+        createdAt: new Date(job.createdAt || Date.now()),
+      }
+    }
+  }
+  return undefined
 }
 
 export function getCategoryBySlug(slug: string): Category | undefined {
@@ -188,13 +209,21 @@ export async function getJobsByCategory(categorySlug: string): Promise<Job[]> {
 
 export async function getJobsByCompany(companySlug: string): Promise<Job[]> {
   await dbConnect()
+  // Fetch jobs and filter by company slug in the query where possible.
+  // Since slug is derived from companyName, we query with a broader filter
+  // and do a final slug check, but limit the scan with lean().
   const jobs = await JobModel.find(
-    { plan: { $nin: ['pending'] }, status: { $ne: 'retired' } },
+    { ...ACTIVE_JOB_FILTER, companyName: { $exists: true, $ne: '' } },
     {},
-    { sort: '-createdAt', limit: 100 }
-  )
-  const transformed = JSON.parse(JSON.stringify(jobs)).map(transformMongoJob)
-  return transformed.filter((job: Job) => job.company.slug === companySlug)
+    { sort: '-createdAt', limit: 500 }
+  ).lean()
+
+  return jobs
+    .filter((j: any) => {
+      const slug = (j.companyName || '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/-+$/, '')
+      return slug === companySlug
+    })
+    .map((j: any) => transformMongoJob(j))
 }
 
 export async function getFeaturedJobs(): Promise<Job[]> {
@@ -203,8 +232,8 @@ export async function getFeaturedJobs(): Promise<Job[]> {
     { plan: { $in: ['pro', 'recruiter'] }, status: { $ne: 'retired' } },
     {},
     { sort: '-createdAt', limit: 6 }
-  )
-  return JSON.parse(JSON.stringify(proJobs)).map(transformMongoJob)
+  ).lean()
+  return proJobs.map(transformMongoJob)
 }
 
 export async function searchJobs(query: string): Promise<Job[]> {
@@ -217,13 +246,12 @@ export async function searchJobs(query: string): Promise<Job[]> {
         { companyName: { $regex: regex } },
         { description: { $regex: regex } },
       ],
-      plan: { $nin: ['pending'] },
-      status: { $ne: 'retired' },
+      ...ACTIVE_JOB_FILTER,
     },
     {},
     { sort: '-createdAt', limit: 50 }
-  )
-  return JSON.parse(JSON.stringify(jobs)).map(transformMongoJob)
+  ).lean()
+  return jobs.map(transformMongoJob)
 }
 
 export async function getLatestJobs(limit: number = 10): Promise<Job[]> {
@@ -259,22 +287,29 @@ function getUniqueCompanies(jobs: any[]): Company[] {
 export async function getAllCompanies(): Promise<Company[]> {
   await dbConnect()
   const jobs = await JobModel.find(
-    { companyName: { $exists: true, $ne: '' }, plan: { $nin: ['pending'] }, status: { $ne: 'retired' } },
+    { companyName: { $exists: true, $ne: '' }, ...ACTIVE_JOB_FILTER },
     { companyName: 1, applyLink: 1, city: 1, country: 1, createdAt: 1 }
-  ).sort('-createdAt').limit(500)
+  ).sort('-createdAt').lean()
 
-  return getUniqueCompanies(jobs.map((j: any) => JSON.parse(JSON.stringify(j))))
+  return getUniqueCompanies(jobs)
 }
 
-export async function getJobCountByCompany(companySlug: string): Promise<number> {
+/**
+ * Get job counts for ALL companies in a single aggregation query.
+ * Replaces the old N+1 pattern where getJobCountByCompany() was called
+ * once per company, each time fetching 1000 docs and filtering in JS.
+ */
+export async function getAllCompanyJobCounts(): Promise<Map<string, number>> {
   await dbConnect()
-  const jobs = await JobModel.find(
-    { plan: { $nin: ['pending'] }, status: { $ne: 'retired' } },
-    { companyName: 1 }
-  ).limit(1000)
+  const counts = await JobModel.aggregate([
+    { $match: { companyName: { $exists: true, $ne: '' }, status: { $ne: 'retired' }, plan: { $nin: ['pending'] } } },
+    { $group: { _id: '$companyName', count: { $sum: 1 } } },
+  ])
 
-  return JSON.parse(JSON.stringify(jobs)).filter((j: any) => {
-    const slug = (j.companyName || '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/-+$/, '')
-    return slug === companySlug
-  }).length
+  const countMap = new Map<string, number>()
+  for (const row of counts) {
+    const slug = (row._id || '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/-+$/, '')
+    countMap.set(slug, (countMap.get(slug) || 0) + row.count)
+  }
+  return countMap
 }

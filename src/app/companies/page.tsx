@@ -1,18 +1,19 @@
 import Link from 'next/link'
-import { getAllCompanies, getJobCountByCompany } from '@/lib/data'
+import { getAllCompanies, getAllCompanyJobCounts } from '@/lib/data'
 
 export const revalidate = 60
 
 export default async function CompaniesPage() {
-  const companies = await getAllCompanies()
+  // Fetch companies and job counts in parallel — single aggregation instead of N+1
+  const [companies, jobCounts] = await Promise.all([
+    getAllCompanies(),
+    getAllCompanyJobCounts(),
+  ])
 
-  // Fetch job counts for all companies in parallel
-  const companiesWithCounts = await Promise.all(
-    companies.map(async (company) => {
-      const jobCount = await getJobCountByCompany(company.slug)
-      return { ...company, jobCount }
-    })
-  )
+  const companiesWithCounts = companies.map((company) => ({
+    ...company,
+    jobCount: jobCounts.get(company.slug) || 0,
+  }))
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
