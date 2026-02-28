@@ -1,6 +1,6 @@
 import { Metadata } from 'next';
 import { notFound } from 'next/navigation';
-import { connectDB } from '@/lib/mongodb';
+import dbConnect from '@/lib/dbConnect';
 import { Niche } from '@/models/Niche';
 import { NicheLanding } from '@/components/NicheLanding';
 
@@ -9,7 +9,7 @@ interface PageProps {
 }
 
 async function getNiche(slug: string) {
-  await connectDB();
+  await dbConnect();
   const niche = await Niche.findOne({ slug, enabled: true }).lean();
   return niche;
 }
@@ -45,7 +45,7 @@ export default async function NichePage({ params }: PageProps) {
 
 // Generate static paths for enabled niches
 export async function generateStaticParams() {
-  await connectDB();
+  await dbConnect();
   const niches = await Niche.find({ enabled: true }).select('slug').lean();
   return niches.map((n) => ({ niche: n.slug }));
 }

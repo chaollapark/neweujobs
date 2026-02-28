@@ -1,3 +1,5 @@
+export const dynamic = 'force-dynamic';
+
 import { getBibConsultancies, getBibAllSpecialisms } from '@/lib/bibData';
 import BibCard from '@/components/bib/BibCard';
 import BibPagination from '@/components/bib/BibPagination';

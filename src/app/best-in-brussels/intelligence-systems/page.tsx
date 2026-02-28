@@ -1,3 +1,5 @@
+export const dynamic = 'force-dynamic';
+
 import { getBibIntelligenceSystems } from '@/lib/bibData';
 import BibCard from '@/components/bib/BibCard';
 

@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { connectDB } from '@/lib/mongodb';
+import dbConnect from '@/lib/dbConnect';
 import { Niche } from '@/models/Niche';
 
 export async function GET(
@@ -7,7 +7,7 @@ export async function GET(
   { params }: { params: { slug: string } }
 ) {
   try {
-    await connectDB();
+    await dbConnect();
     const niche = await Niche.findOne({ slug: params.slug }).lean();
     
     if (!niche) {
@@ -26,7 +26,7 @@ export async function POST(
 ) {
   try {
     const data = await request.json();
-    await connectDB();
+    await dbConnect();
     
     const niche = await Niche.findOneAndUpdate(
       { slug: params.slug },

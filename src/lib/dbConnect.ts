@@ -1,11 +1,14 @@
 import mongoose from 'mongoose';
 
-const EFFECTIVE_MONGODB_URI = process.env.MONGODB_URI || process.env.MONGO_URI;
-const EFFECTIVE_DB_NAME = process.env.MONGODB_DB_NAME || 'test';
-
-if (!EFFECTIVE_MONGODB_URI) {
-  throw new Error('Please define MONGODB_URI or MONGO_URI environment variable in your .env file');
+function getMongoUri(): string {
+  const uri = process.env.MONGODB_URI || process.env.MONGO_URI;
+  if (!uri) {
+    throw new Error('Please define MONGODB_URI or MONGO_URI environment variable in your .env file');
+  }
+  return uri;
 }
+
+const EFFECTIVE_DB_NAME = process.env.MONGODB_DB_NAME || 'test';
 
 interface MongooseCache {
   conn: typeof mongoose | null;
@@ -34,7 +37,7 @@ async function dbConnect() {
       dbName: EFFECTIVE_DB_NAME,
     };
 
-    cached.promise = mongoose.connect(EFFECTIVE_MONGODB_URI!, opts);
+    cached.promise = mongoose.connect(getMongoUri(), opts);
   }
 
   try {
