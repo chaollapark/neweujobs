@@ -43,6 +43,7 @@ services:
       - "127.0.0.1:27017:27017"
     volumes:
       - mongo-data:/data/db
+    command: ["mongod", "--wiredTigerCacheSizeGB", "2"]
     healthcheck:
       test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
       interval: 10s
@@ -53,10 +54,10 @@ services:
       resources:
         limits:
           cpus: "2"
-          memory: 2G
+          memory: 4G
         reservations:
           cpus: "0.5"
-          memory: 512M
+          memory: 1G
     logging:
       driver: "json-file"
       options:
