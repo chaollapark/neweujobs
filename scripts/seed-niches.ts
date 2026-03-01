@@ -20,6 +20,23 @@ const nicheConfigs = competitors.niches.map((c: any) => ({
   enabled: true
 }));
 
+// Country-specific niches
+nicheConfigs.push({
+  slug: 'netherlands',
+  name: 'Netherlands Jobs',
+  description: 'Find the best jobs in the Netherlands. Updated daily with fresh opportunities from top companies.',
+  h1: 'Jobs in Netherlands',
+  tagline: 'Find your next role in the Netherlands',
+  competitor: '',
+  keywords: ['netherlands', 'dutch jobs', 'jobs', 'europe', 'careers'],
+  colors: {
+    primary: 'orange',
+    accent: 'indigo'
+  },
+  filters: { country: 'Netherlands' },
+  enabled: true
+});
+
 function getColorForNiche(slug: string): string {
   const colorMap: Record<string, string> = {
     'climate-jobs': 'green',
