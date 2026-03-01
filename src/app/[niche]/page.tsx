@@ -2,20 +2,46 @@ import { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import dbConnect from '@/lib/dbConnect';
 import { Niche } from '@/models/Niche';
+import { Job as JobModel } from '@/models/Job';
 import { NicheLanding } from '@/components/NicheLanding';
+
+export const dynamic = 'force-dynamic';
 
 interface PageProps {
   params: { niche: string };
 }
 
-async function getNiche(slug: string) {
+async function getNicheWithJobs(slug: string) {
   await dbConnect();
   const niche = await Niche.findOne({ slug, enabled: true }).lean();
-  return niche;
+  if (!niche) return null;
+
+  // Build query from niche filters
+  const query: Record<string, unknown> = { status: 'active' };
+  if (niche.filters?.locations?.length) {
+    query.location = { $in: niche.filters.locations };
+  }
+  if (niche.filters?.categories?.length) {
+    query.category = { $in: niche.filters.categories };
+  }
+  if (niche.filters?.tags?.length) {
+    query.tags = { $in: niche.filters.tags };
+  }
+  if (niche.filters?.country) {
+    query.country = niche.filters.country;
+  }
+
+  const jobs = await JobModel.find(query)
+    .sort({ createdAt: -1 })
+    .limit(20)
+    .lean();
+
+  return { niche, jobs: JSON.parse(JSON.stringify(jobs)) };
 }
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
-  const niche = await getNiche(params.niche);
+  await dbConnect();
+  const niche = await Niche.findOne({ slug: params.niche, enabled: true }).lean();
   
   if (!niche) {
     return { title: 'Not Found' };
@@ -34,13 +60,13 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 }
 
 export default async function NichePage({ params }: PageProps) {
-  const niche = await getNiche(params.niche);
+  const result = await getNicheWithJobs(params.niche);
 
-  if (!niche) {
+  if (!result) {
     notFound();
   }
 
-  return <NicheLanding niche={niche} />;
+  return <NicheLanding niche={result.niche} jobs={result.jobs} />;
 }
 
 // Generate static paths for enabled niches
