@@ -4,21 +4,37 @@ import competitors from '../../competitors.json';
 
 const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/eujobs';
 
-const nicheConfigs = competitors.niches.map((c: any) => ({
-  slug: c.slug,
-  name: c.name,
-  description: `Find the best ${c.name.toLowerCase()} in Europe. Updated daily with fresh opportunities from top companies.`,
-  h1: c.name,
-  tagline: `Your #1 destination for ${c.focus}`,
-  competitor: c.competitor,
-  keywords: [c.slug.replace(/-/g, ' '), c.focus, 'jobs', 'europe', 'careers'],
-  colors: {
-    primary: getColorForNiche(c.slug),
-    accent: 'indigo'
-  },
-  filters: getFiltersForNiche(c.slug),
-  enabled: true
-}));
+const nicheConfigs = [
+  ...competitors.niches.map((c: any) => ({
+    slug: c.slug,
+    name: c.name,
+    description: `Find the best ${c.name.toLowerCase()} in Europe. Updated daily with fresh opportunities from top companies.`,
+    h1: c.name,
+    tagline: `Your #1 destination for ${c.focus}`,
+    competitor: c.competitor,
+    keywords: [c.slug.replace(/-/g, ' '), c.focus, 'jobs', 'europe', 'careers'],
+    colors: {
+      primary: getColorForNiche(c.slug),
+      accent: 'indigo'
+    },
+    filters: getFiltersForNiche(c.slug),
+    enabled: true
+  })),
+  {
+    slug: 'germany',
+    name: 'Germany Jobs',
+    description: 'Find the best germany jobs in Europe. Updated daily with fresh opportunities from top companies.',
+    h1: 'Jobs in Germany',
+    tagline: 'Your #1 destination for jobs in Germany',
+    keywords: ['germany', 'jobs', 'europe', 'careers'],
+    colors: {
+      primary: 'blue',
+      accent: 'indigo'
+    },
+    filters: { country: 'Germany' },
+    enabled: true
+  }
+];
 
 function getColorForNiche(slug: string): string {
   const colorMap: Record<string, string> = {
