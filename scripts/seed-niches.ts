@@ -4,6 +4,21 @@ import competitors from '../../competitors.json';
 
 const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/eujobs';
 
+const franceNiche = {
+  slug: 'france',
+  name: 'France Jobs',
+  description: 'Find the best jobs in France. Updated daily with fresh opportunities from top companies.',
+  h1: 'Jobs in France',
+  tagline: 'Find your next role in France',
+  keywords: ['france', 'jobs', 'france jobs', 'careers in france'],
+  colors: {
+    primary: 'blue',
+    accent: 'indigo'
+  },
+  filters: { country: 'France' },
+  enabled: true
+};
+
 const nicheConfigs = competitors.niches.map((c: any) => ({
   slug: c.slug,
   name: c.name,
@@ -56,7 +71,8 @@ async function seed() {
     await mongoose.connect(MONGODB_URI);
     console.log('Connected to MongoDB');
 
-    for (const config of nicheConfigs) {
+    const allNiches = [...nicheConfigs, franceNiche];
+    for (const config of allNiches) {
       await Niche.findOneAndUpdate(
         { slug: config.slug },
         config,
@@ -65,7 +81,7 @@ async function seed() {
       console.log(`✓ Seeded: ${config.slug}`);
     }
 
-    console.log(`\n✅ Seeded ${nicheConfigs.length} niches`);
+    console.log(`\n✅ Seeded ${allNiches.length} niches`);
     process.exit(0);
   } catch (error) {
     console.error('Error seeding:', error);
