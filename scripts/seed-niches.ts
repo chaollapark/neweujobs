@@ -20,6 +20,23 @@ const nicheConfigs = competitors.niches.map((c: any) => ({
   enabled: true
 }));
 
+// Manual niche entries
+nicheConfigs.push({
+  slug: 'belgium',
+  name: 'Belgium Jobs',
+  description: 'Find the best belgium jobs in Europe. Updated daily with fresh opportunities from top companies.',
+  h1: 'Jobs in Belgium',
+  tagline: 'Find your next role in Belgium',
+  competitor: null,
+  keywords: ['belgium', 'jobs', 'europe', 'careers'],
+  colors: {
+    primary: 'blue',
+    accent: 'indigo'
+  },
+  filters: { country: 'Belgium' },
+  enabled: true
+});
+
 function getColorForNiche(slug: string): string {
   const colorMap: Record<string, string> = {
     'climate-jobs': 'green',
