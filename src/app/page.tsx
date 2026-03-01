@@ -1,3 +1,5 @@
+export const dynamic = 'force-dynamic';
+
 import Link from 'next/link'
 import SearchBar from '@/components/jobs/SearchBar'
 import JobCard from '@/components/jobs/JobCard'
