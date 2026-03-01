@@ -2,7 +2,7 @@ import { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import dbConnect from '@/lib/dbConnect';
 import { Niche } from '@/models/Niche';
-import { Job as JobModel } from '@/models/Job';
+import { JobModel } from '@/models/Job';
 import { NicheLanding } from '@/components/NicheLanding';
 
 export const dynamic = 'force-dynamic';
