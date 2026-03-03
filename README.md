@@ -1,6 +1,7 @@
 # 🇪🇺 EU Jobs Brussels
 
 The leading job board for EU institutions, NGOs, think tanks, and public affairs positions in Brussels.
+This is the upgraded website (the old handcoded codebase is https://github.com/mcparkMCP/eujobs-platform ).
 
 **Competitors:** jobsin.brussels, eurobrussels.com, euractiv.jobs.com, eujobs.co
 
