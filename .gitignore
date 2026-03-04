@@ -47,5 +47,8 @@ next-env.d.ts
 logs/
 *.log
 
+# Deploy state
+.deploy-state
+
 # Career guide JSON files (288MB, imported via script)
 /career-guides/
