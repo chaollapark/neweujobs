@@ -15,6 +15,7 @@ export async function getOrgCareerGuides(page = 1, perPage = 50) {
       .skip((page - 1) * perPage)
       .limit(perPage)
       .select('slug title organization entitySlug wordCount generatedAt description')
+      .allowDiskUse(true)
       .lean(),
     OrgCareerGuide.countDocuments(query),
   ]);

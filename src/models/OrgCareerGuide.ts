@@ -18,6 +18,7 @@ const OrgCareerGuideSchema = new mongoose.Schema({
   organization: {
     type: String,
     required: [true, 'Please provide an organization name.'],
+    index: true,
   },
   entityId: {
     type: mongoose.Schema.Types.ObjectId,
