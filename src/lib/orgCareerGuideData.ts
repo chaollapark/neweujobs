@@ -7,17 +7,15 @@ function serialize<T>(doc: T): T {
 
 export async function getOrgCareerGuides(page = 1, perPage = 50) {
   await dbConnect();
-  const query = {};
 
   const [items, total] = await Promise.all([
-    OrgCareerGuide.find(query)
-      .sort({ organization: 1 })
-      .skip((page - 1) * perPage)
-      .limit(perPage)
-      .select('slug title organization entitySlug wordCount generatedAt description')
-      .allowDiskUse(true)
-      .lean(),
-    OrgCareerGuide.countDocuments(query),
+    OrgCareerGuide.aggregate([
+      { $sort: { organization: 1 } },
+      { $skip: (page - 1) * perPage },
+      { $limit: perPage },
+      { $project: { slug: 1, title: 1, organization: 1, entitySlug: 1, wordCount: 1, generatedAt: 1, description: 1 } },
+    ]).allowDiskUse(true),
+    OrgCareerGuide.countDocuments({}),
   ]);
 
   return { items: serialize(items), total, totalPages: Math.ceil(total / perPage) };
