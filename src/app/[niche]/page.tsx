@@ -5,7 +5,7 @@ import { Niche } from '@/models/Niche';
 import { JobModel } from '@/models/Job';
 import { NicheLanding } from '@/components/NicheLanding';
 
-export const dynamic = 'force-dynamic';
+export const revalidate = 3600;
 
 interface PageProps {
   params: { niche: string };

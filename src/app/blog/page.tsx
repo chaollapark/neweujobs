@@ -1,7 +1,11 @@
-export const dynamic = 'force-dynamic';
-
 import Link from 'next/link'
+import { Metadata } from 'next'
 import { getCareerGuides } from '@/lib/careerGuideData'
+
+export const metadata: Metadata = {
+  title: 'Blog - EU Jobs Brussels',
+  description: 'Insights, career advice, and analysis on working in EU institutions, public affairs, and the Brussels bubble.',
+}
 
 export const revalidate = 3600;
 

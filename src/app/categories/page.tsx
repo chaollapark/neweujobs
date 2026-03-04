@@ -1,5 +1,11 @@
 import Link from 'next/link'
+import { Metadata } from 'next'
 import { categories } from '@/lib/categories'
+
+export const metadata: Metadata = {
+  title: 'Job Categories - EU Jobs Brussels',
+  description: 'Browse EU job categories: institutions, agencies, NGOs, think tanks, public affairs, law firms, media, and traineeships in Brussels.',
+}
 
 export default function CategoriesPage() {
   return (

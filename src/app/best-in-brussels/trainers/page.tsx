@@ -1,5 +1,3 @@
-export const dynamic = 'force-dynamic';
-
 import { getBibTrainers } from '@/lib/bibData';
 import BibCard from '@/components/bib/BibCard';
 

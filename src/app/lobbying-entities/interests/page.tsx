@@ -1,7 +1,11 @@
-export const dynamic = 'force-dynamic';
-
 import Link from 'next/link';
+import { Metadata } from 'next';
 import { getAllInterests } from '@/lib/interestAggregation';
+
+export const metadata: Metadata = {
+  title: 'Lobbying Interests - EU Transparency',
+  description: 'Explore lobbying interests and policy areas tracked in the EU Transparency Register.',
+}
 
 export const revalidate = 3600;
 

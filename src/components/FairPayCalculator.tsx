@@ -71,10 +71,10 @@ export default function FairPayCalculator() {
   const midpoint = (range.min + range.max) / 2;
 
   const linkedInText = encodeURIComponent(
-    `As a ${SENIORITY_LABELS[seniority]} professional in ${CATEGORY_LABELS[category]} in Brussels, the fair monthly salary range is ${formatCurrency(range.min)} - ${formatCurrency(range.max)}. Check yours at eujobs.brussels/fairpay`
+    `As a ${SENIORITY_LABELS[seniority]} professional in ${CATEGORY_LABELS[category]} in Brussels, the fair monthly salary range is ${formatCurrency(range.min)} - ${formatCurrency(range.max)}. Check yours at eujobs.co/fairpay`
   );
 
-  const linkedInUrl = `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent('https://eujobs.brussels/fairpay')}&summary=${linkedInText}`;
+  const linkedInUrl = `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent('https://eujobs.co/fairpay')}&summary=${linkedInText}`;
 
   return (
     <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md dark:shadow-gray-900/30 border border-gray-200 dark:border-gray-600 p-6 md:p-8">

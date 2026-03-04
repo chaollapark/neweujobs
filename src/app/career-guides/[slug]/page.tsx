@@ -26,7 +26,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     openGraph: {
       title: guide.title,
       description,
-      url: `https://eujobs.brussels/career-guides/${slug}`,
+      url: `https://eujobs.co/career-guides/${slug}`,
       siteName: 'EU Jobs Brussels',
       type: 'article',
       publishedTime: guide.generatedAt,
@@ -59,9 +59,9 @@ export default async function OrgCareerGuidePage({ params }: Props) {
     publisher: {
       '@type': 'Organization',
       name: 'EU Jobs Brussels',
-      url: 'https://eujobs.brussels',
+      url: 'https://eujobs.co',
     },
-    mainEntityOfPage: `https://eujobs.brussels/career-guides/${slug}`,
+    mainEntityOfPage: `https://eujobs.co/career-guides/${slug}`,
     ...(guide.description && { description: guide.description }),
     wordCount: guide.wordCount,
   }
@@ -70,8 +70,8 @@ export default async function OrgCareerGuidePage({ params }: Props) {
     '@context': 'https://schema.org',
     '@type': 'BreadcrumbList',
     itemListElement: [
-      { '@type': 'ListItem', position: 1, name: 'Home', item: 'https://eujobs.brussels' },
-      { '@type': 'ListItem', position: 2, name: 'Career Guides', item: 'https://eujobs.brussels/career-guides' },
+      { '@type': 'ListItem', position: 1, name: 'Home', item: 'https://eujobs.co' },
+      { '@type': 'ListItem', position: 2, name: 'Career Guides', item: 'https://eujobs.co/career-guides' },
       { '@type': 'ListItem', position: 3, name: guide.organization },
     ],
   }

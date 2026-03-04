@@ -1,5 +1,3 @@
-export const dynamic = 'force-dynamic';
-
 import { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
@@ -37,7 +35,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     openGraph: {
       title: post.title,
       description,
-      url: `https://eujobs.brussels/blog/${slug}`,
+      url: `https://eujobs.co/blog/${slug}`,
       siteName: 'EU Jobs Brussels',
       type: 'article',
       publishedTime: post.publishedDate,
@@ -73,9 +71,9 @@ export default async function BlogPostPage({ params }: Props) {
     publisher: {
       '@type': 'Organization',
       name: 'EU Jobs Brussels',
-      url: 'https://eujobs.brussels',
+      url: 'https://eujobs.co',
     },
-    mainEntityOfPage: `https://eujobs.brussels/blog/${slug}`,
+    mainEntityOfPage: `https://eujobs.co/blog/${slug}`,
     ...(post.description && { description: post.description }),
   }
 
@@ -83,8 +81,8 @@ export default async function BlogPostPage({ params }: Props) {
     '@context': 'https://schema.org',
     '@type': 'BreadcrumbList',
     itemListElement: [
-      { '@type': 'ListItem', position: 1, name: 'Home', item: 'https://eujobs.brussels' },
-      { '@type': 'ListItem', position: 2, name: 'Blog', item: 'https://eujobs.brussels/blog' },
+      { '@type': 'ListItem', position: 1, name: 'Home', item: 'https://eujobs.co' },
+      { '@type': 'ListItem', position: 2, name: 'Blog', item: 'https://eujobs.co/blog' },
       { '@type': 'ListItem', position: 3, name: post.title },
     ],
   }

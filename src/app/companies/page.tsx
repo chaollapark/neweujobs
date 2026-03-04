@@ -1,20 +1,16 @@
-export const dynamic = 'force-dynamic';
-
 import Link from 'next/link'
-import { getAllCompanies, getJobCountByCompany } from '@/lib/data'
+import { Metadata } from 'next'
+import { getAllCompaniesWithCounts } from '@/lib/data'
+
+export const metadata: Metadata = {
+  title: 'Companies Hiring in Brussels - EU Employers',
+  description: 'Discover top employers in the EU bubble. Browse companies hiring for EU institutions, public affairs, NGOs, and more in Brussels.',
+}
 
 export const revalidate = 60
 
 export default async function CompaniesPage() {
-  const companies = await getAllCompanies()
-
-  // Fetch job counts for all companies in parallel
-  const companiesWithCounts = await Promise.all(
-    companies.map(async (company) => {
-      const jobCount = await getJobCountByCompany(company.slug)
-      return { ...company, jobCount }
-    })
-  )
+  const companiesWithCounts = await getAllCompaniesWithCounts()
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">

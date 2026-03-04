@@ -1,5 +1,3 @@
-export const dynamic = 'force-dynamic';
-
 import { Metadata } from 'next';
 import Link from 'next/link';
 import Image from 'next/image';
@@ -23,7 +21,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   return {
     title: `${item.name} - EU Public Affairs Consultancy`,
     description,
-    openGraph: { title: item.name, description, url: `https://eujobs.brussels/best-in-brussels/consultancies/${slug}` },
+    openGraph: { title: item.name, description, url: `https://eujobs.co/best-in-brussels/consultancies/${slug}` },
   };
 }
 

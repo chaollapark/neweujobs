@@ -36,7 +36,7 @@ export async function generateMetadata({
       openGraph: {
         title: `${niche.name} - EU Jobs Brussels`,
         description: niche.description,
-        url: `https://eujobs.brussels/${niche.slug}`,
+        url: `https://eujobs.co/${niche.slug}`,
         siteName: 'EU Jobs Brussels',
         locale: 'en_EU',
         type: 'website',

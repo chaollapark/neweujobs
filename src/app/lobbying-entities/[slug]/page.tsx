@@ -1,5 +1,3 @@
-export const dynamic = 'force-dynamic';
-
 import { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
@@ -41,7 +39,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     openGraph: {
       title: `${entity.name} - EU Lobbying Entity`,
       description,
-      url: `https://eujobs.brussels/lobbying-entities/${slug}`,
+      url: `https://eujobs.co/lobbying-entities/${slug}`,
       siteName: 'EU Jobs Brussels',
       type: 'website',
     },

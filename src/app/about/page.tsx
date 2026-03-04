@@ -1,4 +1,10 @@
 import Link from 'next/link'
+import { Metadata } from 'next'
+
+export const metadata: Metadata = {
+  title: 'About EU Jobs Brussels',
+  description: 'Learn about EU Jobs Brussels, the leading job board for careers in EU institutions, NGOs, think tanks, and public affairs in Brussels.',
+}
 
 export default function AboutPage() {
   const team = [

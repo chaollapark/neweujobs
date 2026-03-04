@@ -16,7 +16,7 @@ export async function fetchPage(url: string): Promise<any> {
   const html = await retry(async () => {
     const response = await fetch(url, {
       headers: {
-        'User-Agent': 'Mozilla/5.0 (compatible; EUJobsBrussels/1.0; +https://eujobs.brussels)',
+        'User-Agent': 'Mozilla/5.0 (compatible; EUJobsBrussels/1.0; +https://eujobs.co)',
         'Accept': 'text/html,application/xhtml+xml',
       },
     });

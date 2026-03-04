@@ -1,9 +1,13 @@
-export const dynamic = 'force-dynamic';
-
 import Link from 'next/link';
+import { Metadata } from 'next';
 import dbConnect from '@/lib/dbConnect';
 import LobbyingEntityModel from '@/models/LobbyingEntity';
 import { getTopInterests } from '@/lib/interestAggregation';
+
+export const metadata: Metadata = {
+  title: 'EU Lobbying Entities Directory',
+  description: 'Browse the EU Transparency Register. Explore lobbying organizations, their interests, and activities in Brussels.',
+}
 
 export const revalidate = 3600;
 

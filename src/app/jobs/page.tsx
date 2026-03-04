@@ -1,6 +1,12 @@
 import { Suspense } from 'react'
+import { Metadata } from 'next'
 import { getLatestJobs, searchJobs, categories } from '@/lib/data'
 import JobsClientFilters from './JobsClientFilters'
+
+export const metadata: Metadata = {
+  title: 'EU Job Listings - Find Positions in Brussels',
+  description: 'Browse hundreds of EU job openings in Brussels. Filter by category, experience level, and contract type. Updated daily with positions from EU institutions, NGOs, and public affairs.',
+}
 
 export const revalidate = 60
 

@@ -10,9 +10,18 @@ import { Suspense } from 'react'
 const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
+  metadataBase: new URL('https://eujobs.co'),
   title: 'EU Jobs Brussels - Find Your Career in the EU Bubble',
   description: 'The leading job board for EU institutions, NGOs, think tanks, and public affairs positions in Brussels. Find your next career opportunity in the European Union.',
   keywords: 'EU jobs, Brussels jobs, European Commission, EU careers, public affairs, lobbying, NGO jobs, think tank jobs, EU traineeship',
+  openGraph: {
+    title: 'EU Jobs Brussels - Find Your Career in the EU Bubble',
+    description: 'The leading job board for EU institutions, NGOs, think tanks, and public affairs positions in Brussels.',
+    url: 'https://eujobs.co',
+    siteName: 'EU Jobs Brussels',
+    locale: 'en_EU',
+    type: 'website',
+  },
   icons: {
     icon: [
       { url: '/favicon/favicon.ico' },
@@ -23,14 +32,6 @@ export const metadata: Metadata = {
       { rel: 'icon', url: '/favicon/android-chrome-192x192.png', sizes: '192x192' },
       { rel: 'icon', url: '/favicon/android-chrome-512x512.png', sizes: '512x512' },
     ],
-  },
-  openGraph: {
-    title: 'EU Jobs Brussels - Find Your Career in the EU Bubble',
-    description: 'The leading job board for EU institutions, NGOs, think tanks, and public affairs positions in Brussels.',
-    url: 'https://eujobs.brussels',
-    siteName: 'EU Jobs Brussels',
-    locale: 'en_EU',
-    type: 'website',
   },
   twitter: {
     card: 'summary_large_image',

@@ -10,6 +10,7 @@ const nextConfig = {
     cpus: 1,
   },
   staticPageGenerationTimeout: 300,
+  poweredByHeader: false,
 }
 
 module.exports = nextConfig

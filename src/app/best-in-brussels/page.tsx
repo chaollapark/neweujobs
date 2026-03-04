@@ -1,7 +1,11 @@
-export const dynamic = 'force-dynamic';
-
 import Link from 'next/link';
+import { Metadata } from 'next';
 import { getBibStats } from '@/lib/bibData';
+
+export const metadata: Metadata = {
+  title: 'Best in Brussels - Top EU Affairs Professionals',
+  description: 'The comprehensive directory of EU public affairs professionals, consultancies, law firms, and services in Brussels.',
+}
 
 export const revalidate = 3600;
 

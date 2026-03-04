@@ -10,7 +10,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: 'Organization Career Guides - EU Jobs Brussels',
     description: 'Browse career guides for over 12,000 EU lobbying organizations.',
-    url: 'https://eujobs.brussels/career-guides',
+    url: 'https://eujobs.co/career-guides',
     siteName: 'EU Jobs Brussels',
     type: 'website',
   },

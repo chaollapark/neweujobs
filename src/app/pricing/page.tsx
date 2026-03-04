@@ -1,4 +1,10 @@
 import Link from 'next/link'
+import { Metadata } from 'next'
+
+export const metadata: Metadata = {
+  title: 'Post a Job - Pricing Plans',
+  description: 'Post your job on EU Jobs Brussels and reach thousands of qualified EU affairs professionals. Plans starting from \u20AC99.',
+}
 
 export default function PricingPage() {
   const plans = [

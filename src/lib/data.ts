@@ -207,9 +207,13 @@ export async function getFeaturedJobs(): Promise<Job[]> {
   return JSON.parse(JSON.stringify(proJobs)).map(transformMongoJob)
 }
 
+function escapeRegex(str: string): string {
+  return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+}
+
 export async function searchJobs(query: string): Promise<Job[]> {
   await dbConnect()
-  const regex = new RegExp(query, 'i')
+  const regex = new RegExp(escapeRegex(query), 'i')
   const jobs = await JobModel.find(
     {
       $or: [
@@ -277,4 +281,37 @@ export async function getJobCountByCompany(companySlug: string): Promise<number>
     const slug = (j.companyName || '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/-+$/, '')
     return slug === companySlug
   }).length
+}
+
+export async function getAllCompaniesWithCounts(): Promise<(Company & { jobCount: number })[]> {
+  await dbConnect()
+  const results = await JobModel.aggregate([
+    { $match: { companyName: { $exists: true, $ne: '' }, plan: { $nin: ['pending'] }, status: { $ne: 'retired' } } },
+    { $group: {
+        _id: '$companyName',
+        jobCount: { $sum: 1 },
+        applyLink: { $first: '$applyLink' },
+        city: { $first: '$city' },
+        country: { $first: '$country' },
+        createdAt: { $max: '$createdAt' },
+    }},
+    { $sort: { jobCount: -1 } },
+  ])
+
+  return results.map((r: any) => {
+    const slug = (r._id || 'unknown').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/-+$/, '')
+    const category = determineCategory(r._id || '', '')
+    return {
+      id: slug,
+      name: r._id,
+      slug,
+      description: '',
+      website: r.applyLink ? (() => { try { return new URL(r.applyLink).origin } catch { return '' } })() : '',
+      location: r.city ? `${r.city}, ${r.country || 'Belgium'}` : 'Brussels, Belgium',
+      industry: category.name,
+      verified: true,
+      createdAt: new Date(r.createdAt || Date.now()),
+      jobCount: r.jobCount,
+    }
+  })
 }

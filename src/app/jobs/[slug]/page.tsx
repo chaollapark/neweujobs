@@ -1,5 +1,3 @@
-export const dynamic = 'force-dynamic';
-
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import { Metadata } from 'next'
@@ -26,7 +24,7 @@ export async function generateMetadata({ params }: JobDetailPageProps): Promise<
     openGraph: {
       title: `${job.title} at ${job.company.name}`,
       description: job.description.replace(/<[^>]*>/g, '').slice(0, 160),
-      url: `https://eujobs.brussels/jobs/${job.slug}`,
+      url: `https://eujobs.co/jobs/${job.slug}`,
       siteName: 'EU Jobs Brussels',
       type: 'website',
     },
@@ -411,7 +409,7 @@ export default async function JobDetailPage({ params }: JobDetailPageProps) {
                 <span className="text-sm text-gray-500 dark:text-gray-400 block mb-3">Share this job</span>
                 <div className="flex gap-2">
                   <a
-                    href={`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(`https://eujobs.brussels/jobs/${job.slug}`)}`}
+                    href={`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(`https://eujobs.co/jobs/${job.slug}`)}`}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="flex-1 py-2 px-3 bg-blue-600 text-white rounded-lg text-sm hover:bg-blue-700 text-center"
@@ -419,7 +417,7 @@ export default async function JobDetailPage({ params }: JobDetailPageProps) {
                     LinkedIn
                   </a>
                   <a
-                    href={`https://twitter.com/intent/tweet?url=${encodeURIComponent(`https://eujobs.brussels/jobs/${job.slug}`)}&text=${encodeURIComponent(`${job.title} at ${job.company.name}`)}`}
+                    href={`https://twitter.com/intent/tweet?url=${encodeURIComponent(`https://eujobs.co/jobs/${job.slug}`)}&text=${encodeURIComponent(`${job.title} at ${job.company.name}`)}`}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="flex-1 py-2 px-3 bg-sky-500 text-white rounded-lg text-sm hover:bg-sky-600 text-center"

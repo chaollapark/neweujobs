@@ -24,7 +24,7 @@ export async function generateMetadata({ params }: CompanyDetailPageProps): Prom
     openGraph: {
       title: `${company.name} - EU Jobs Brussels`,
       description: `View open positions at ${company.name}`,
-      url: `https://eujobs.brussels/companies/${company.slug}`,
+      url: `https://eujobs.co/companies/${company.slug}`,
       siteName: 'EU Jobs Brussels',
       type: 'website',
     },
