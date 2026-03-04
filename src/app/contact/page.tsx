@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
+import Breadcrumb from '@/components/Breadcrumb'
 
 export default function ContactPage() {
   const [formData, setFormData] = useState({
@@ -43,6 +44,7 @@ export default function ContactPage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
+      <Breadcrumb items={[{ label: 'Home', href: '/' }, { label: 'Contact' }]} />
       {/* Header */}
       <div className="bg-eu-blue py-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">

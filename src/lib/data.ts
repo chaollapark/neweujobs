@@ -167,9 +167,9 @@ export async function getJobBySlug(slug: string): Promise<Job | undefined> {
 export async function getCompanyBySlug(slug: string): Promise<Company | undefined> {
   await dbConnect()
   const jobs = await JobModel.find(
-    { companyName: { $exists: true } },
+    { companyName: { $exists: true, $ne: '' }, plan: { $nin: ['pending'] }, status: { $ne: 'retired' } },
     { companyName: 1, applyLink: 1, city: 1, country: 1, createdAt: 1 }
-  ).limit(500)
+  ).sort('-createdAt')
 
   const allCompanies = getUniqueCompanies(jobs.map((j: any) => JSON.parse(JSON.stringify(j))))
   return allCompanies.find(c => c.slug === slug)

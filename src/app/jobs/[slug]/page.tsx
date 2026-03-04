@@ -107,6 +107,17 @@ export default async function JobDetailPage({ params }: JobDetailPageProps) {
   const deadline = isRetired ? null : getDeadlineUrgency()
   const activeJobs = isRetired ? await getLatestJobs(3) : []
 
+  // JSON-LD breadcrumb
+  const breadcrumbJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: 'Home', item: 'https://eujobs.co' },
+      { '@type': 'ListItem', position: 2, name: 'Jobs', item: 'https://eujobs.co/jobs' },
+      { '@type': 'ListItem', position: 3, name: job.title },
+    ],
+  }
+
   // JSON-LD structured data
   const jsonLd = {
     '@context': 'https://schema.org',
@@ -148,11 +159,15 @@ export default async function JobDetailPage({ params }: JobDetailPageProps) {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
+      />
 
       {/* Breadcrumb */}
       <div className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-          <nav className="flex text-sm text-gray-500 dark:text-gray-400">
+          <nav aria-label="breadcrumb" className="flex text-sm text-gray-500 dark:text-gray-400">
             <Link href="/" className="hover:text-eu-blue">Home</Link>
             <span className="mx-2">/</span>
             <Link href="/jobs" className="hover:text-eu-blue">Jobs</Link>

@@ -2,6 +2,7 @@ import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import { getCategoryBySlug, getJobsByCategory, categories } from '@/lib/data'
 import JobCard from '@/components/jobs/JobCard'
+import Breadcrumb from '@/components/Breadcrumb'
 
 export const revalidate = 60
 
@@ -21,17 +22,10 @@ export default async function CategoryDetailPage({ params }: CategoryDetailPageP
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+      <Breadcrumb items={[{ label: 'Home', href: '/' }, { label: 'Categories', href: '/categories' }, { label: category.name }]} />
       {/* Category Header */}
       <div className="bg-eu-blue py-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <nav className="flex text-sm text-gray-300 mb-6">
-            <Link href="/" className="hover:text-white">Home</Link>
-            <span className="mx-2">/</span>
-            <Link href="/categories" className="hover:text-white">Categories</Link>
-            <span className="mx-2">/</span>
-            <span className="text-white">{category.name}</span>
-          </nav>
-
           <div className="flex items-center gap-4">
             <span className="text-6xl">{category.icon}</span>
             <div>

@@ -90,7 +90,7 @@ export default async function OrgCareerGuidePage({ params }: Props) {
       {/* Breadcrumb */}
       <div className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-          <nav className="flex text-sm text-gray-500 dark:text-gray-400">
+          <nav aria-label="breadcrumb" className="flex text-sm text-gray-500 dark:text-gray-400">
             <Link href="/" className="hover:text-eu-blue dark:hover:text-blue-400">Home</Link>
             <span className="mx-2">/</span>
             <Link href="/career-guides" className="hover:text-eu-blue dark:hover:text-blue-400">Career Guides</Link>

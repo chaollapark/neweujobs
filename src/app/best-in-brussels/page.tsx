@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { Metadata } from 'next';
 import { getBibStats } from '@/lib/bibData';
+import Breadcrumb from '@/components/Breadcrumb';
 
 export const metadata: Metadata = {
   title: 'Best in Brussels - Top EU Affairs Professionals',
@@ -28,6 +29,7 @@ export default async function BestInBrusselsPage() {
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+      <Breadcrumb items={[{ label: 'Home', href: '/' }, { label: 'Best in Brussels' }]} />
       {/* Hero */}
       <section className="bg-gradient-to-br from-eu-blue to-eu-dark text-white py-12 sm:py-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">

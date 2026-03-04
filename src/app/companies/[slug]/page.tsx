@@ -3,6 +3,7 @@ import Link from 'next/link'
 import { Metadata } from 'next'
 import { getCompanyBySlug, getJobsByCompany } from '@/lib/data'
 import JobCard from '@/components/jobs/JobCard'
+import Breadcrumb from '@/components/Breadcrumb'
 
 export const revalidate = 60
 
@@ -44,17 +45,10 @@ export default async function CompanyDetailPage({ params }: CompanyDetailPagePro
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+      <Breadcrumb items={[{ label: 'Home', href: '/' }, { label: 'Companies', href: '/companies' }, { label: company.name }]} />
       {/* Company Header */}
       <div className="bg-eu-blue py-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <nav className="flex text-sm text-gray-300 mb-6">
-            <Link href="/" className="hover:text-white">Home</Link>
-            <span className="mx-2">/</span>
-            <Link href="/companies" className="hover:text-white">Companies</Link>
-            <span className="mx-2">/</span>
-            <span className="text-white">{company.name}</span>
-          </nav>
-
           <div className="flex items-center gap-6">
             <div className="w-24 h-24 rounded-xl bg-white flex items-center justify-center flex-shrink-0">
               <span className="text-eu-blue font-bold text-3xl">

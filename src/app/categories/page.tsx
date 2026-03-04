@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import { Metadata } from 'next'
 import { categories } from '@/lib/categories'
+import Breadcrumb from '@/components/Breadcrumb'
 
 export const metadata: Metadata = {
   title: 'Job Categories - EU Jobs Brussels',
@@ -10,6 +11,7 @@ export const metadata: Metadata = {
 export default function CategoriesPage() {
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+      <Breadcrumb items={[{ label: 'Home', href: '/' }, { label: 'Categories' }]} />
       {/* Header */}
       <div className="bg-eu-blue py-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">

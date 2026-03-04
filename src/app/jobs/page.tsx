@@ -1,6 +1,7 @@
 import { Suspense } from 'react'
 import { Metadata } from 'next'
 import { getLatestJobs, searchJobs, categories } from '@/lib/data'
+import Breadcrumb from '@/components/Breadcrumb'
 import JobsClientFilters from './JobsClientFilters'
 
 export const metadata: Metadata = {
@@ -24,6 +25,7 @@ export default async function JobsPage({ searchParams }: JobsPageProps) {
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+      <Breadcrumb items={[{ label: 'Home', href: '/' }, { label: 'Jobs' }]} />
       <Suspense fallback={<JobsLoading />}>
         <JobsClientFilters
           initialJobs={JSON.parse(JSON.stringify(jobs))}

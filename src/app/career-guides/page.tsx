@@ -1,6 +1,7 @@
 import { Metadata } from 'next'
 import Link from 'next/link'
 import { getOrgCareerGuides, getOrgCareerGuideCount } from '@/lib/orgCareerGuideData'
+import Breadcrumb from '@/components/Breadcrumb'
 
 export const revalidate = 86400;
 
@@ -32,6 +33,7 @@ export default async function CareerGuidesListingPage({ searchParams }: PageProp
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+      <Breadcrumb items={[{ label: 'Home', href: '/' }, { label: 'Career Guides' }]} />
       {/* Header */}
       <div className="bg-eu-blue py-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">

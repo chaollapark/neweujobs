@@ -6,6 +6,7 @@ import LobbyingEntityModel from '@/models/LobbyingEntity';
 import { fetchJobsForEntity } from '@/models/Job';
 import { getCareerGuidesForEntity } from '@/lib/careerGuideData';
 import { getOrgCareerGuideByEntitySlug } from '@/lib/orgCareerGuideData';
+import Breadcrumb from '@/components/Breadcrumb';
 
 export const dynamicParams = true;
 export const revalidate = 86400;
@@ -95,15 +96,10 @@ export default async function LobbyingEntityPage({ params }: PageProps) {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
 
+      <Breadcrumb items={[{ label: 'Home', href: '/' }, { label: 'Lobbying Entities', href: '/lobbying-entities' }, { label: entity.name }]} maxWidth="max-w-5xl" />
       {/* Header */}
       <section className="bg-gradient-to-br from-eu-blue to-eu-dark text-white py-12">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
-          <Link
-            href="/lobbying-entities"
-            className="inline-flex items-center text-gray-300 hover:text-white mb-6 transition-colors"
-          >
-            &larr; Back to all entities
-          </Link>
           <div className="flex items-start gap-4">
             <div>
               <h1 className="text-3xl md:text-4xl font-bold mb-2">

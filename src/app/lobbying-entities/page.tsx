@@ -3,6 +3,7 @@ import { Metadata } from 'next';
 import dbConnect from '@/lib/dbConnect';
 import LobbyingEntityModel from '@/models/LobbyingEntity';
 import { getTopInterests } from '@/lib/interestAggregation';
+import Breadcrumb from '@/components/Breadcrumb';
 
 export const metadata: Metadata = {
   title: 'EU Lobbying Entities Directory',
@@ -49,6 +50,7 @@ export default async function LobbyingEntitiesPage({ searchParams }: PageProps) 
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+      <Breadcrumb items={[{ label: 'Home', href: '/' }, { label: 'Lobbying Entities' }]} />
       {/* Header */}
       <section className="bg-gradient-to-br from-eu-blue to-eu-dark text-white py-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">

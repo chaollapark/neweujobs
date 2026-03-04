@@ -1,4 +1,5 @@
 import FairPayCalculator from '@/components/FairPayCalculator';
+import Breadcrumb from '@/components/Breadcrumb';
 
 export const metadata = {
   title: 'Fair Pay Calculator - EU Jobs Brussels',
@@ -8,6 +9,7 @@ export const metadata = {
 export default function FairPayPage() {
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+      <Breadcrumb items={[{ label: 'Home', href: '/' }, { label: 'Fair Pay Calculator' }]} />
       {/* Header */}
       <section className="bg-gradient-to-br from-eu-blue to-eu-dark text-white py-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
