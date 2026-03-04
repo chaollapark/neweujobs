@@ -21,4 +21,5 @@ jobs:
           command_timeout: 300s
           script: |
             cd /data/repos/eujobs/neweujobs
+            git pull --ff-only origin main
             bash deploy.sh 2>&1

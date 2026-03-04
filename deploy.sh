@@ -26,11 +26,7 @@ echo "=== Deploy started ==="
 echo "Active port: $ACTIVE_PORT -> New port: $NEW_PORT"
 echo "Old container: $OLD_NAME -> New container: $NEW_NAME"
 
-# 2. Pull latest code
-echo "=== Pulling latest code ==="
-git pull --ff-only origin main
-
-# 3. Build new image
+# 2. Build new image
 echo "=== Building new image ==="
 docker compose build eujobs
 
