@@ -26,6 +26,7 @@ export default function Footer() {
               <li><Link href="/categories" className="hover:text-eu-yellow">Job Categories</Link></li>
               <li><Link href="/companies" className="hover:text-eu-yellow">Companies</Link></li>
               <li><Link href="/fairpay" className="hover:text-eu-yellow">Fair Pay Calculator</Link></li>
+              <li><Link href="/career-guides" className="hover:text-eu-yellow">Career Guides</Link></li>
               <li><Link href="/blog" className="hover:text-eu-yellow">Career Advice</Link></li>
             </ul>
           </div>
