@@ -54,7 +54,7 @@ export default function Footer() {
             </ul>
           </div>
 
-          {/* Resources */}
+{/* Resources */}
           <div>
             <h3 className="font-semibold text-lg mb-4">Resources</h3>
             <ul className="space-y-2 text-gray-300">
@@ -80,6 +80,7 @@ export default function Footer() {
                 <li><Link href="/jobs-in-the-hague" className="hover:text-eu-yellow">Jobs in The Hague</Link></li>
                 <li><Link href="/jobs-in-frankfurt" className="hover:text-eu-yellow">Jobs in Frankfurt</Link></li>
                 <li><Link href="/jobs-in-vienna" className="hover:text-eu-yellow">Jobs in Vienna</Link></li>
+                <li><Link href="/geneva" className="hover:text-eu-yellow">Jobs in Geneva</Link></li>
               </ul>
             </div>
             <div>

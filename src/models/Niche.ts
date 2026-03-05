@@ -1,5 +1,10 @@
 import mongoose, { Document, Schema } from 'mongoose';
 
+export interface INicheFaq {
+  question: string;
+  answer: string;
+}
+
 export interface INiche extends Document {
   slug: string;
   name: string;

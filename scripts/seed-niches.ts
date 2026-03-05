@@ -543,6 +543,45 @@ const niches: NicheConfig[] = [
     enabled: true,
     colors: { primary: 'blue', accent: 'indigo' },
   },
+  // === GENEVA (competing with jobsingeneva.org) ===
+  {
+    slug: 'geneva',
+    name: 'Jobs in Geneva',
+    h1: 'Find Jobs in Geneva — International Organizations, NGOs & UN Agencies',
+    tagline: 'Geneva is the world capital of multilateral diplomacy. Discover roles at WHO, ILO, ICRC, WTO, UNHCR, and 40+ international organizations.',
+    description: `Geneva is the world capital of multilateral diplomacy and home to the European headquarters of the United Nations at the Palais des Nations. Over 40 international organizations are headquartered in the city, making it one of the most concentrated hubs for global governance careers anywhere on earth.\n\nKey employers include the World Health Organization (WHO), the International Labour Organization (ILO), the International Committee of the Red Cross (ICRC), the World Trade Organization (WTO), the UN High Commissioner for Refugees (UNHCR), the World Intellectual Property Organization (WIPO), the International Telecommunication Union (ITU), UNAIDS, and CERN — the European Organization for Nuclear Research. Major NGOs such as Médecins Sans Frontières (MSF), GAVI the Vaccine Alliance, and the Global Fund are also based in Geneva, alongside the World Economic Forum (WEF) and the Graduate Institute of International and Development Studies.\n\nSalaries in Geneva's international sector are denominated in Swiss francs (CHF) and are among the highest in the world. Many international organization roles offer tax-advantaged compensation packages: UN system salaries, for example, are exempt from Swiss income tax. Entry-level professional positions (P2/P3) typically start around CHF 90,000–120,000, while senior roles (P5/D1) can exceed CHF 200,000 — plus benefits such as education grants, home leave, and pension contributions.\n\nWorking in Geneva generally requires strong English and French. Most international organizations operate bilingually, and French is essential for daily life, housing, and integration into the local community. Additional UN languages (Spanish, Arabic, Chinese, Russian) are highly valued.\n\nGeneva offers an exceptional quality of life — it is consistently ranked among the safest and most liveable cities in the world. The cost of living is high, but international salaries more than compensate. Compared to Brussels, which is the hub for EU institutional careers, Geneva is the center for UN system and humanitarian roles. The two cities are complementary rather than competing: many professionals build careers across both.`,
+    keywords: ['Geneva jobs', 'UN jobs Geneva', 'WHO careers', 'international organization jobs Geneva', 'ILO jobs', 'ICRC careers', 'NGO jobs Geneva', 'WTO jobs', 'UNHCR jobs', 'Switzerland international jobs', 'multilateral jobs Geneva'],
+    filters: {
+      cities: ['Geneva', 'Genève', 'Genf'],
+      countries: ['Switzerland', 'Suisse', 'Schweiz'],
+      companyPatterns: [
+        'world health organization', 'WHO',
+        'international labour', 'ILO',
+        'red cross', 'ICRC', 'CICR',
+        'world trade organization', 'WTO',
+        'UNHCR', 'refugee',
+        'WIPO', 'intellectual property',
+        'ITU', 'telecommunication',
+        'UNAIDS',
+        'CERN',
+        'world economic forum', 'WEF',
+        'médecins sans frontières', 'doctors without borders', 'MSF',
+        'GAVI', 'vaccine alliance',
+        'global fund',
+        'inter-parliamentary union', 'IPU',
+        'graduate institute',
+      ],
+    },
+    faqs: [
+      { question: 'What international organizations are based in Geneva?', answer: 'Geneva hosts over 40 international organizations including the UN European headquarters (Palais des Nations), WHO, ILO, ICRC, WTO, UNHCR, WIPO, ITU, UNAIDS, and CERN. Major NGOs like Médecins Sans Frontières (MSF), GAVI, and the Global Fund are also headquartered there, alongside the World Economic Forum.' },
+      { question: 'What salary can I expect working in Geneva?', answer: 'Salaries in Geneva are denominated in Swiss francs (CHF) and are among the highest globally. UN system entry-level professional roles (P2/P3) typically pay CHF 90,000–120,000, while senior positions (P5/D1) exceed CHF 200,000. Many international organization salaries are exempt from Swiss income tax, and packages often include education grants, pension contributions, and home leave allowances.' },
+      { question: 'Do I need to speak French to work in Geneva?', answer: 'Most international organizations in Geneva operate bilingually in English and French. While English is the primary working language in many UN agencies, French is essential for daily life, housing, and community integration. Strong French significantly improves your competitiveness for roles and is often listed as a requirement or strong advantage.' },
+      { question: 'How does Geneva compare to Brussels or New York for international careers?', answer: 'Geneva is the global hub for UN system agencies, humanitarian organizations, and multilateral trade bodies. Brussels is the center for EU institutional careers and public affairs. New York hosts the UN General Assembly and Security Council. The three cities are complementary — many international professionals build careers across all three. Geneva stands out for its concentration of health, humanitarian, and trade organizations.' },
+      { question: 'How do I apply for UN jobs in Geneva?', answer: 'UN positions in Geneva are posted on the UN Careers portal (careers.un.org) and on individual agency websites (e.g., who.int/careers, ilo.org/jobs). Applications typically require a detailed UN-format CV, a cover letter, and completion of an online application form. The process includes written assessments and competency-based interviews. Networking, JPO programmes, and UNV assignments are common entry points.' },
+    ],
+    enabled: true,
+    colors: { primary: 'red', accent: 'white' },
+  },
 ];
 
 async function seed() {
