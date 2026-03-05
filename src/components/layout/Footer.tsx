@@ -67,6 +67,55 @@ export default function Footer() {
           </div>
         </div>
 
+        {/* Browse Jobs By Section */}
+        <div className="border-t border-gray-700 mt-8 pt-8">
+          <h3 className="font-semibold text-lg mb-4">Browse Jobs By</h3>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-x-8 gap-y-2 text-sm text-gray-300">
+            <div>
+              <h4 className="font-medium text-white mb-2">Location</h4>
+              <ul className="space-y-1">
+                <li><Link href="/jobs-in-brussels" className="hover:text-eu-yellow">Jobs in Brussels</Link></li>
+                <li><Link href="/jobs-in-luxembourg" className="hover:text-eu-yellow">Jobs in Luxembourg</Link></li>
+                <li><Link href="/jobs-in-strasbourg" className="hover:text-eu-yellow">Jobs in Strasbourg</Link></li>
+                <li><Link href="/jobs-in-the-hague" className="hover:text-eu-yellow">Jobs in The Hague</Link></li>
+                <li><Link href="/jobs-in-frankfurt" className="hover:text-eu-yellow">Jobs in Frankfurt</Link></li>
+                <li><Link href="/jobs-in-vienna" className="hover:text-eu-yellow">Jobs in Vienna</Link></li>
+              </ul>
+            </div>
+            <div>
+              <h4 className="font-medium text-white mb-2">Institution</h4>
+              <ul className="space-y-1">
+                <li><Link href="/european-commission-jobs" className="hover:text-eu-yellow">European Commission</Link></li>
+                <li><Link href="/european-parliament-jobs" className="hover:text-eu-yellow">European Parliament</Link></li>
+                <li><Link href="/eu-council-jobs" className="hover:text-eu-yellow">EU Council</Link></li>
+                <li><Link href="/eu-agencies-jobs" className="hover:text-eu-yellow">EU Agencies</Link></li>
+                <li><Link href="/ngo-jobs-brussels" className="hover:text-eu-yellow">NGOs Brussels</Link></li>
+              </ul>
+            </div>
+            <div>
+              <h4 className="font-medium text-white mb-2">Policy Area</h4>
+              <ul className="space-y-1">
+                <li><Link href="/eu-climate-jobs" className="hover:text-eu-yellow">Climate & Environment</Link></li>
+                <li><Link href="/eu-digital-policy-jobs" className="hover:text-eu-yellow">Digital & Tech Policy</Link></li>
+                <li><Link href="/eu-legal-jobs" className="hover:text-eu-yellow">Legal & Law</Link></li>
+                <li><Link href="/eu-finance-jobs" className="hover:text-eu-yellow">Finance & Economics</Link></li>
+                <li><Link href="/public-affairs-jobs-brussels" className="hover:text-eu-yellow">Public Affairs</Link></li>
+              </ul>
+            </div>
+            <div>
+              <h4 className="font-medium text-white mb-2">Category</h4>
+              <ul className="space-y-1">
+                <li><Link href="/categories/eu-institutions" className="hover:text-eu-yellow">EU Institutions</Link></li>
+                <li><Link href="/categories/public-affairs" className="hover:text-eu-yellow">Public Affairs</Link></li>
+                <li><Link href="/categories/ngos" className="hover:text-eu-yellow">NGOs & Civil Society</Link></li>
+                <li><Link href="/categories/think-tanks" className="hover:text-eu-yellow">Think Tanks</Link></li>
+                <li><Link href="/traineeships" className="hover:text-eu-yellow">Traineeships</Link></li>
+                <li><Link href="/remote-eu-jobs" className="hover:text-eu-yellow">Remote EU Jobs</Link></li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
         {/* Bottom Bar */}
         <div className="border-t border-gray-700 mt-8 pt-8 flex flex-col md:flex-row justify-between items-center">
           <p className="text-gray-400 text-sm">

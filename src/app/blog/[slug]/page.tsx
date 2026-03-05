@@ -2,12 +2,82 @@ import { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import { getCareerGuideBySlug, getRelatedEntitiesForGuide, getAllCareerGuideSlugs } from '@/lib/careerGuideData'
+import FAQSection from '@/components/seo/FAQSection'
+import FAQPageJsonLd from '@/components/seo/FAQPageJsonLd'
+import { RelatedContent, getRelatedLinks } from '@/components/RelatedContent'
 
 export const revalidate = 3600;
 export const dynamicParams = true;
 
 interface Props {
   params: Promise<{ slug: string }>
+}
+
+function sanitizeDescription(raw: string | undefined, contentHtml: string | undefined): string {
+  if (raw) {
+    // Strip "Date: ... Author: ..." prefixes
+    let cleaned = raw.replace(/^Date:\s*[\d\-\/]+\s*(Author:\s*[^\n.]+)?[\s.]*/i, '').trim()
+    if (cleaned.length > 10) {
+      return truncateAtWord(cleaned, 155)
+    }
+  }
+  if (contentHtml) {
+    const text = contentHtml.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim()
+    const firstSentence = text.match(/^(.+?[.!?])\s/)
+    if (firstSentence && firstSentence[1].length >= 40) {
+      return truncateAtWord(firstSentence[1], 155)
+    }
+    return truncateAtWord(text, 155)
+  }
+  return ''
+}
+
+function truncateAtWord(text: string, maxLen: number): string {
+  if (text.length <= maxLen) return text
+  const truncated = text.slice(0, maxLen)
+  const lastSpace = truncated.lastIndexOf(' ')
+  return (lastSpace > 80 ? truncated.slice(0, lastSpace) : truncated) + '...'
+}
+
+function extractFAQsFromContent(
+  title: string,
+  contentHtml: string | undefined
+): { question: string; answer: string }[] {
+  const faqs: { question: string; answer: string }[] = []
+
+  // If the post title is a question, use it as FAQ #1
+  if (title && /\?$/.test(title.trim()) && contentHtml) {
+    const text = contentHtml.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim()
+    const firstParaMatch = text.match(/^(.+?[.!?])\s/)
+    if (firstParaMatch) {
+      faqs.push({ question: title.trim(), answer: firstParaMatch[1] })
+    }
+  }
+
+  if (!contentHtml) return faqs
+
+  // Extract H2/H3 question headings
+  const headingRegex = /<h[23][^>]*>(.*?)<\/h[23]>/gi
+  let match
+  while ((match = headingRegex.exec(contentHtml)) !== null) {
+    const heading = match[1].replace(/<[^>]*>/g, '').trim()
+    if (/\?$|^(what|how|why|when|where|who|is |are |can |do |does |will |should )/i.test(heading)) {
+      const afterHeading = contentHtml.slice(match.index + match[0].length)
+      const nextHeadingMatch = afterHeading.match(/<h[23][^>]*>/)
+      const section = nextHeadingMatch
+        ? afterHeading.slice(0, nextHeadingMatch.index)
+        : afterHeading.slice(0, 1000)
+      const paraMatch = section.match(/<p[^>]*>(.*?)<\/p>/is)
+      if (paraMatch) {
+        const answer = paraMatch[1].replace(/<[^>]*>/g, '').trim()
+        if (answer.length > 20) {
+          faqs.push({ question: heading, answer })
+        }
+      }
+    }
+    if (faqs.length >= 5) break
+  }
+  return faqs
 }
 
 export async function generateStaticParams() {
@@ -27,7 +97,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     return { title: 'Article Not Found - EU Jobs Brussels' }
   }
 
-  const description = post.description || `${post.title} - Career advice and insights for working in EU institutions and Brussels.`
+  const description = sanitizeDescription(post.description, post.contentHtml)
+    || `${post.title} - Career advice and insights for working in EU institutions and Brussels.`
 
   return {
     title: `${post.title} - EU Jobs Brussels Blog`,
@@ -57,7 +128,11 @@ export default async function BlogPostPage({ params }: Props) {
     notFound()
   }
 
-  const relatedEntities = await getRelatedEntitiesForGuide(post.relatedInterests || [], 6)
+  const [relatedEntities, relatedLinks] = await Promise.all([
+    getRelatedEntitiesForGuide(post.relatedInterests || [], 6),
+    getRelatedLinks({ interests: post.relatedInterests }),
+  ])
+  const blogFAQs = extractFAQsFromContent(post.title, post.contentHtml)
 
   const articleJsonLd = {
     '@context': 'https://schema.org',
@@ -97,6 +172,7 @@ export default async function BlogPostPage({ params }: Props) {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
       />
+      {blogFAQs.length > 0 && <FAQPageJsonLd items={blogFAQs} />}
 
       {/* Breadcrumb */}
       <div className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
@@ -148,6 +224,11 @@ export default async function BlogPostPage({ params }: Props) {
           />
         </article>
 
+        {/* FAQ Section */}
+        {blogFAQs.length > 0 && (
+          <FAQSection items={blogFAQs} />
+        )}
+
         {/* Related EU Organizations */}
         {relatedEntities.length > 0 && (
           <section className="mt-12">
@@ -183,6 +264,9 @@ export default async function BlogPostPage({ params }: Props) {
             </div>
           </section>
         )}
+
+        {/* Related Content (Internal Links) */}
+        <RelatedContent items={relatedLinks} heading="Explore More" />
 
         {/* Back to Blog */}
         <div className="mt-8 text-center">

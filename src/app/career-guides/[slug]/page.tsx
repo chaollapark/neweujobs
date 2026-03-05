@@ -2,12 +2,65 @@ import { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import { getOrgCareerGuideBySlug } from '@/lib/orgCareerGuideData'
+import FAQSection from '@/components/seo/FAQSection'
+import FAQPageJsonLd from '@/components/seo/FAQPageJsonLd'
+import { RelatedContent, getRelatedLinks } from '@/components/RelatedContent'
 
 export const revalidate = 86400;
 export const dynamicParams = true;
 
 interface Props {
   params: Promise<{ slug: string }>
+}
+
+function extractFirstSentence(html: string | undefined, maxLen: number): string {
+  if (!html) return ''
+  const text = html.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim()
+  const match = text.match(/^(.+?[.!?])\s/)
+  const sentence = match ? match[1] : text
+  if (sentence.length <= maxLen) return sentence
+  const truncated = sentence.slice(0, maxLen)
+  const lastSpace = truncated.lastIndexOf(' ')
+  return (lastSpace > 80 ? truncated.slice(0, lastSpace) : truncated) + '...'
+}
+
+function extractFAQsFromHTML(html: string | undefined): { question: string; answer: string }[] {
+  if (!html) return []
+  const faqs: { question: string; answer: string }[] = []
+
+  // Match H2/H3 headings that look like questions, paired with next paragraph
+  const headingRegex = /<h[23][^>]*>(.*?)<\/h[23]>/gi
+  let match
+  while ((match = headingRegex.exec(html)) !== null) {
+    const heading = match[1].replace(/<[^>]*>/g, '').trim()
+    // Check if it looks like a question
+    if (/\?$|^(what|how|why|when|where|who|is |are |can |do |does |will |should )/i.test(heading)) {
+      // Get the text after this heading until the next heading
+      const afterHeading = html.slice(match.index + match[0].length)
+      const nextHeadingMatch = afterHeading.match(/<h[23][^>]*>/)
+      const section = nextHeadingMatch
+        ? afterHeading.slice(0, nextHeadingMatch.index)
+        : afterHeading.slice(0, 1000)
+      // Extract first paragraph
+      const paraMatch = section.match(/<p[^>]*>(.*?)<\/p>/is)
+      if (paraMatch) {
+        const answer = paraMatch[1].replace(/<[^>]*>/g, '').trim()
+        if (answer.length > 20) {
+          faqs.push({ question: heading, answer })
+        }
+      }
+    }
+    if (faqs.length >= 5) break
+  }
+  return faqs
+}
+
+function getTemplateFAQs(orgName: string): { question: string; answer: string }[] {
+  return [
+    { question: `What is ${orgName}?`, answer: `${orgName} is an organisation active in the EU affairs ecosystem. Visit their entity profile on EUJobs.co for detailed information about their activities, interests, and registration in the EU Transparency Register.` },
+    { question: `How do I apply for jobs at ${orgName}?`, answer: `Check EUJobs.co regularly for the latest vacancies at ${orgName}. You can also visit their official website for direct applications. Setting up job alerts on EUJobs.co ensures you never miss a new opening.` },
+    { question: `What career opportunities does ${orgName} offer?`, answer: `${orgName} offers various career opportunities depending on their focus area. Roles may include policy positions, research, communications, administrative support, and management roles. Check our career guide for detailed information.` },
+  ]
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
@@ -18,7 +71,9 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     return { title: 'Career Guide Not Found - EU Jobs Brussels' }
   }
 
-  const description = guide.description || `Career guide for ${guide.organization}. Learn how to get hired, interview tips, salary info, and insider advice.`
+  const description = guide.description
+    || extractFirstSentence(guide.contentHtml, 155)
+    || `Career guide for ${guide.organization}. Learn how to get hired, interview tips, salary info, and insider advice.`
 
   return {
     title: `${guide.title} - EU Jobs Brussels`,
@@ -46,6 +101,14 @@ export default async function OrgCareerGuidePage({ params }: Props) {
   if (!guide) {
     notFound()
   }
+
+  // Extract FAQs from content or use template
+  const extractedFAQs = extractFAQsFromHTML(guide.contentHtml)
+  const faqs = extractedFAQs.length >= 2
+    ? extractedFAQs
+    : getTemplateFAQs(guide.organization)
+
+  const relatedLinks = await getRelatedLinks({ companyName: guide.organization })
 
   const articleJsonLd = {
     '@context': 'https://schema.org',
@@ -86,6 +149,7 @@ export default async function OrgCareerGuidePage({ params }: Props) {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
       />
+      <FAQPageJsonLd items={faqs} />
 
       {/* Breadcrumb */}
       <div className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
@@ -129,6 +193,14 @@ export default async function OrgCareerGuidePage({ params }: Props) {
             dangerouslySetInnerHTML={{ __html: guide.contentHtml || '' }}
           />
         </article>
+
+        {/* FAQ Section */}
+        {faqs.length > 0 && (
+          <FAQSection items={faqs} heading={`${guide.organization} - Frequently Asked Questions`} />
+        )}
+
+        {/* Related Content (Internal Links) */}
+        <RelatedContent items={relatedLinks} heading="Explore More" />
 
         {/* Footer links */}
         <div className="mt-8 flex flex-wrap items-center justify-between gap-4">

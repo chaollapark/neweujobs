@@ -4,6 +4,15 @@ export const revalidate = 3600
 
 const BASE_URL = 'https://eujobs.co'
 
+// Sanitize slug for XML sitemap — encode chars that break XML parsing
+function safeSlug(slug: string): string {
+  if (!slug) return ''
+  return encodeURIComponent(slug)
+    .replace(/%2F/g, '/')  // keep path separators
+    .replace(/%40/g, '@')
+    .replace(/%3A/g, ':')
+}
+
 const CATEGORY_SLUGS = [
   'eu-institutions', 'eu-agencies', 'trade-associations', 'ngos',
   'think-tanks', 'public-affairs', 'law-firms', 'media',
@@ -81,12 +90,14 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       { status: { $ne: 'retired' }, plan: { $nin: ['pending'] } }
     ).select('slug updatedAt').lean()
 
-    const jobPages: MetadataRoute.Sitemap = jobs.map((job: any) => ({
-      url: `${BASE_URL}/jobs/${job.slug}`,
-      lastModified: job.updatedAt || now,
-      changeFrequency: 'weekly' as const,
-      priority: 0.8,
-    }))
+    const jobPages: MetadataRoute.Sitemap = jobs
+      .filter((job: any) => job.slug)
+      .map((job: any) => ({
+        url: `${BASE_URL}/jobs/${safeSlug(job.slug)}`,
+        lastModified: job.updatedAt || now,
+        changeFrequency: 'weekly' as const,
+        priority: 0.8,
+      }))
 
     // Company pages
     const companyNames = await JobModel.distinct('companyName', {
@@ -94,45 +105,53 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       plan: { $nin: ['pending'] },
       status: { $ne: 'retired' },
     })
-    const companyPages: MetadataRoute.Sitemap = companyNames.map((name: string) => {
-      const slug = (name || 'unknown').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/-+$/, '')
-      return {
-        url: `${BASE_URL}/companies/${slug}`,
-        lastModified: now,
-        changeFrequency: 'weekly' as const,
-        priority: 0.6,
-      }
-    })
+    const companyPages: MetadataRoute.Sitemap = companyNames
+      .filter((name: string) => name)
+      .map((name: string) => {
+        const slug = (name || 'unknown').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/-+$/, '').replace(/^-+/, '')
+        return {
+          url: `${BASE_URL}/companies/${safeSlug(slug)}`,
+          lastModified: now,
+          changeFrequency: 'weekly' as const,
+          priority: 0.6,
+        }
+      })
 
     // Lobbying entity pages
     const LobbyingEntityModel = (await import('@/models/LobbyingEntity')).default
     const entities = await LobbyingEntityModel.find({}).select('slug').lean()
-    const entityPages: MetadataRoute.Sitemap = entities.map((e: any) => ({
-      url: `${BASE_URL}/lobbying-entities/${e.slug}`,
-      lastModified: now,
-      changeFrequency: 'monthly' as const,
-      priority: 0.5,
-    }))
+    const entityPages: MetadataRoute.Sitemap = entities
+      .filter((e: any) => e.slug)
+      .map((e: any) => ({
+        url: `${BASE_URL}/lobbying-entities/${safeSlug(e.slug)}`,
+        lastModified: now,
+        changeFrequency: 'monthly' as const,
+        priority: 0.5,
+      }))
 
     // Career guide pages (org career guides — ~12,000)
     const OrgCareerGuideModel = (await import('@/models/OrgCareerGuide')).default
     const guides = await OrgCareerGuideModel.find({}).select('slug generatedAt').lean()
-    const guidePages: MetadataRoute.Sitemap = guides.map((g: any) => ({
-      url: `${BASE_URL}/career-guides/${g.slug}`,
-      lastModified: g.generatedAt || now,
-      changeFrequency: 'monthly' as const,
-      priority: 0.5,
-    }))
+    const guidePages: MetadataRoute.Sitemap = guides
+      .filter((g: any) => g.slug)
+      .map((g: any) => ({
+        url: `${BASE_URL}/career-guides/${safeSlug(g.slug)}`,
+        lastModified: g.generatedAt || now,
+        changeFrequency: 'monthly' as const,
+        priority: 0.5,
+      }))
 
     // Blog posts (career_guides collection — ~15)
     const CareerGuideModel = (await import('@/models/CareerGuide')).default
     const blogs = await CareerGuideModel.find({}).select('slug updatedAt').lean()
-    const blogPages: MetadataRoute.Sitemap = blogs.map((b: any) => ({
-      url: `${BASE_URL}/blog/${b.slug}`,
-      lastModified: b.updatedAt || now,
-      changeFrequency: 'monthly' as const,
-      priority: 0.6,
-    }))
+    const blogPages: MetadataRoute.Sitemap = blogs
+      .filter((b: any) => b.slug)
+      .map((b: any) => ({
+        url: `${BASE_URL}/blog/${safeSlug(b.slug)}`,
+        lastModified: b.updatedAt || now,
+        changeFrequency: 'monthly' as const,
+        priority: 0.6,
+      }))
 
     // BIB individual detail pages
     let bibDetailPages: MetadataRoute.Sitemap = []
@@ -142,12 +161,14 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         const Model = mod.default || mod[config.model]
         if (Model) {
           const items = await Model.find({}).select('slug').lean()
-          const pages = items.map((item: any) => ({
-            url: `${BASE_URL}/${config.pathPrefix}/${item.slug}`,
-            lastModified: now,
-            changeFrequency: 'monthly' as const,
-            priority: 0.5,
-          }))
+          const pages = items
+            .filter((item: any) => item.slug)
+            .map((item: any) => ({
+              url: `${BASE_URL}/${config.pathPrefix}/${safeSlug(item.slug)}`,
+              lastModified: now,
+              changeFrequency: 'monthly' as const,
+              priority: 0.5,
+            }))
           bibDetailPages = [...bibDetailPages, ...pages]
         }
       } catch {
@@ -155,7 +176,19 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       }
     }
 
-    dynamicPages = [...jobPages, ...companyPages, ...entityPages, ...guidePages, ...blogPages, ...bibDetailPages]
+    // Niche pages
+    const { Niche } = await import('@/models/Niche')
+    const niches = await Niche.find({ enabled: true }).select('slug').lean()
+    const nichePages: MetadataRoute.Sitemap = niches
+      .filter((n: any) => n.slug)
+      .map((n: any) => ({
+        url: `${BASE_URL}/${safeSlug(n.slug)}`,
+        lastModified: now,
+        changeFrequency: 'weekly' as const,
+        priority: 0.8,
+      }))
+
+    dynamicPages = [...jobPages, ...companyPages, ...entityPages, ...guidePages, ...blogPages, ...bibDetailPages, ...nichePages]
   } catch (error) {
     console.log('Sitemap: DB not available, using static pages only')
   }

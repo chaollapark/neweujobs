@@ -8,7 +8,44 @@ import { NicheLanding } from '@/components/NicheLanding';
 export const revalidate = 3600;
 
 interface PageProps {
-  params: { niche: string };
+  params: Promise<{ niche: string }>;
+}
+
+function buildNicheQuery(filters: {
+  cities?: string[];
+  countries?: string[];
+  companyPatterns?: string[];
+  seniority?: string[];
+  titleKeywords?: string[];
+}) {
+  const query: Record<string, unknown> = { status: 'active' };
+  const conditions: Record<string, unknown>[] = [];
+
+  if (filters.cities?.length) {
+    conditions.push({ city: { $in: filters.cities.map(c => new RegExp(c, 'i')) } });
+  }
+  if (filters.countries?.length) {
+    conditions.push({ country: { $in: filters.countries.map(c => new RegExp(c, 'i')) } });
+  }
+  if (filters.companyPatterns?.length) {
+    conditions.push({
+      $or: filters.companyPatterns.map(p => ({ companyName: { $regex: p, $options: 'i' } }))
+    });
+  }
+  if (filters.seniority?.length) {
+    conditions.push({ seniority: { $in: filters.seniority } });
+  }
+  if (filters.titleKeywords?.length) {
+    conditions.push({
+      $or: filters.titleKeywords.map(k => ({ title: { $regex: k, $options: 'i' } }))
+    });
+  }
+
+  if (conditions.length > 0) {
+    query.$and = conditions;
+  }
+
+  return query;
 }
 
 async function getNicheWithJobs(slug: string) {
@@ -16,51 +53,46 @@ async function getNicheWithJobs(slug: string) {
   const niche = await Niche.findOne({ slug, enabled: true }).lean();
   if (!niche) return null;
 
-  // Build query from niche filters
-  const query: Record<string, unknown> = { status: 'active' };
-  if (niche.filters?.locations?.length) {
-    query.location = { $in: niche.filters.locations };
-  }
-  if (niche.filters?.categories?.length) {
-    query.category = { $in: niche.filters.categories };
-  }
-  if (niche.filters?.tags?.length) {
-    query.tags = { $in: niche.filters.tags };
-  }
-  if (niche.filters?.country) {
-    query.country = niche.filters.country;
-  }
+  const query = buildNicheQuery(niche.filters || {});
 
   const jobs = await JobModel.find(query)
     .sort({ createdAt: -1 })
-    .limit(20)
+    .limit(50)
     .lean();
 
-  return { niche, jobs: JSON.parse(JSON.stringify(jobs)) };
+  return { niche: JSON.parse(JSON.stringify(niche)), jobs: JSON.parse(JSON.stringify(jobs)) };
 }
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
+  const { niche: nicheSlug } = await params;
   await dbConnect();
-  const niche = await Niche.findOne({ slug: params.niche, enabled: true }).lean();
-  
+  const niche = await Niche.findOne({ slug: nicheSlug, enabled: true }).lean();
+
   if (!niche) {
     return { title: 'Not Found' };
   }
 
+  const description = niche.description?.length > 160
+    ? niche.description.slice(0, 160).replace(/\s+\S*$/, '') + '...'
+    : niche.description;
+
   return {
-    title: `${niche.name} | EUjobs.co`,
-    description: niche.description,
+    title: `${niche.name} | EUJobs.co`,
+    description,
     keywords: niche.keywords?.join(', '),
     openGraph: {
       title: niche.name,
-      description: niche.description,
+      description,
       type: 'website',
+      url: `https://eujobs.co/${nicheSlug}`,
+      siteName: 'EU Jobs Brussels',
     },
   };
 }
 
 export default async function NichePage({ params }: PageProps) {
-  const result = await getNicheWithJobs(params.niche);
+  const { niche: nicheSlug } = await params;
+  const result = await getNicheWithJobs(nicheSlug);
 
   if (!result) {
     notFound();
@@ -73,5 +105,5 @@ export default async function NichePage({ params }: PageProps) {
 export async function generateStaticParams() {
   await dbConnect();
   const niches = await Niche.find({ enabled: true }).select('slug').lean();
-  return niches.map((n) => ({ niche: n.slug }));
+  return niches.map((n: any) => ({ niche: n.slug }));
 }

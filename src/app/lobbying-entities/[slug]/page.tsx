@@ -7,6 +7,7 @@ import { fetchJobsForEntity } from '@/models/Job';
 import { getCareerGuidesForEntity } from '@/lib/careerGuideData';
 import { getOrgCareerGuideByEntitySlug } from '@/lib/orgCareerGuideData';
 import Breadcrumb from '@/components/Breadcrumb';
+import { RelatedContent, getRelatedLinks } from '@/components/RelatedContent';
 
 export const dynamicParams = true;
 export const revalidate = 86400;
@@ -31,7 +32,9 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   }
 
   const description = entity.description
-    ? entity.description.substring(0, 160)
+    ? (entity.description.length <= 160
+        ? entity.description
+        : entity.description.slice(0, 160).replace(/\s+\S*$/, '') + '...')
     : `Learn about ${entity.name}, a lobbying entity registered in the EU Transparency Register.`;
 
   return {
@@ -60,10 +63,11 @@ export default async function LobbyingEntityPage({ params }: PageProps) {
     notFound();
   }
 
-  const [relatedJobs, relatedGuides, orgCareerGuide] = await Promise.all([
+  const [relatedJobs, relatedGuides, orgCareerGuide, relatedLinks] = await Promise.all([
     fetchJobsForEntity(entity.website || entity.webSiteURL, entity.name, 3),
     getCareerGuidesForEntity(entity.interests || []),
     getOrgCareerGuideByEntitySlug(slug),
+    getRelatedLinks({ companyName: entity.name, interests: entity.interests?.slice(0, 3) }),
   ]);
 
   const jsonLd = {
@@ -236,6 +240,10 @@ export default async function LobbyingEntityPage({ params }: PageProps) {
                   ))}
                 </div>
               </section>
+            )}
+            {/* Related Content (Internal Links) */}
+            {relatedLinks.length > 0 && (
+              <RelatedContent items={relatedLinks} heading="Explore More" />
             )}
           </div>
 

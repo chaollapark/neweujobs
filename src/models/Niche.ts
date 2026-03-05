@@ -13,10 +13,13 @@ export interface INiche extends Document {
     accent: string;
   };
   filters: {
-    locations?: string[];
-    categories?: string[];
-    tags?: string[];
+    cities?: string[];
+    countries?: string[];
+    companyPatterns?: string[];
+    seniority?: string[];
+    titleKeywords?: string[];
   };
+  faqs: { question: string; answer: string }[];
   enabled: boolean;
   createdAt: Date;
 }
@@ -34,10 +37,16 @@ const NicheSchema = new Schema<INiche>({
     accent: { type: String, default: 'indigo' }
   },
   filters: {
-    locations: [{ type: String }],
-    categories: [{ type: String }],
-    tags: [{ type: String }]
+    cities: [{ type: String }],
+    countries: [{ type: String }],
+    companyPatterns: [{ type: String }],
+    seniority: [{ type: String }],
+    titleKeywords: [{ type: String }]
   },
+  faqs: [{
+    question: { type: String },
+    answer: { type: String }
+  }],
   enabled: { type: Boolean, default: true },
   createdAt: { type: Date, default: Date.now }
 });
@@ -59,10 +68,13 @@ export type NicheType = {
     accent: string;
   };
   filters: {
-    locations?: string[];
-    categories?: string[];
-    tags?: string[];
+    cities?: string[];
+    countries?: string[];
+    companyPatterns?: string[];
+    seniority?: string[];
+    titleKeywords?: string[];
   };
+  faqs?: { question: string; answer: string }[];
   enabled: boolean;
   createdAt: Date;
 };

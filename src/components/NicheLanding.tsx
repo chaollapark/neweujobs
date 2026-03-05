@@ -2,6 +2,8 @@ import Link from 'next/link';
 import { NicheType } from '@/models/Niche';
 import { Job } from '@/types';
 import JobCard from '@/components/jobs/JobCard';
+import FAQSection from '@/components/seo/FAQSection';
+import FAQPageJsonLd from '@/components/seo/FAQPageJsonLd';
 
 interface NicheLandingProps {
   niche: NicheType;
@@ -9,8 +11,51 @@ interface NicheLandingProps {
 }
 
 export function NicheLanding({ niche, jobs }: NicheLandingProps) {
+  const breadcrumbJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: 'Home', item: 'https://eujobs.co' },
+      { '@type': 'ListItem', position: 2, name: niche.name },
+    ],
+  };
+
+  const webPageJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'WebPage',
+    name: niche.h1,
+    description: niche.description,
+    url: `https://eujobs.co/${niche.slug}`,
+    publisher: {
+      '@type': 'Organization',
+      name: 'EU Jobs Brussels',
+      url: 'https://eujobs.co',
+    },
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white dark:from-gray-900 dark:to-gray-800">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(webPageJsonLd) }}
+      />
+      {niche.faqs && niche.faqs.length > 0 && <FAQPageJsonLd items={niche.faqs} />}
+
+      {/* Breadcrumb */}
+      <div className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
+        <div className="max-w-6xl mx-auto px-4 py-3">
+          <nav aria-label="breadcrumb" className="flex text-sm text-gray-500 dark:text-gray-400">
+            <Link href="/" className="hover:text-eu-blue dark:hover:text-blue-400">Home</Link>
+            <span className="mx-2">/</span>
+            <span className="text-gray-900 dark:text-white">{niche.name}</span>
+          </nav>
+        </div>
+      </div>
+
       {/* Hero Section */}
       <section className="bg-gradient-to-br from-eu-blue to-eu-dark text-white py-20">
         <div className="max-w-6xl mx-auto px-4 text-center">
@@ -51,8 +96,22 @@ export function NicheLanding({ niche, jobs }: NicheLandingProps) {
         </div>
       </section>
 
+      {/* About Section - Editorial Content */}
+      {niche.description && (
+        <section className="py-12 bg-white dark:bg-gray-800 border-b dark:border-gray-700">
+          <div className="max-w-4xl mx-auto px-4">
+            <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">About {niche.name}</h2>
+            <div className="prose dark:prose-invert max-w-none text-gray-700 dark:text-gray-300">
+              {niche.description.split('\n').filter(Boolean).map((paragraph, i) => (
+                <p key={i}>{paragraph}</p>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
+
       {/* Stats Section */}
-      <section className="py-12 bg-white dark:bg-gray-800 border-b dark:border-gray-700">
+      <section className="py-12 bg-gray-50 dark:bg-gray-900 border-b dark:border-gray-700">
         <div className="max-w-6xl mx-auto px-4">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
             <div>
@@ -76,7 +135,7 @@ export function NicheLanding({ niche, jobs }: NicheLandingProps) {
       </section>
 
       {/* Job Listings */}
-      <section className="py-16 bg-gray-50 dark:bg-gray-900">
+      <section className="py-16 bg-white dark:bg-gray-800">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center mb-8">
             <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
@@ -89,10 +148,10 @@ export function NicheLanding({ niche, jobs }: NicheLandingProps) {
           <div className="grid gap-4">
             {jobs.length > 0 ? (
               jobs.map((job) => (
-                <JobCard key={job.id} job={job} featured={job.featured} />
+                <JobCard key={job.id || (job as any)._id} job={job} featured={job.featured} />
               ))
             ) : (
-              <div className="bg-white dark:bg-gray-800 rounded-lg p-8 text-center">
+              <div className="bg-gray-50 dark:bg-gray-900 rounded-lg p-8 text-center">
                 <p className="text-gray-500 dark:text-gray-400 text-lg mb-4">
                   No jobs found in this niche yet.
                 </p>
@@ -107,6 +166,15 @@ export function NicheLanding({ niche, jobs }: NicheLandingProps) {
           </div>
         </div>
       </section>
+
+      {/* FAQ Section */}
+      {niche.faqs && niche.faqs.length > 0 && (
+        <section className="py-16 bg-gray-50 dark:bg-gray-900">
+          <div className="max-w-4xl mx-auto px-4">
+            <FAQSection items={niche.faqs} heading={`${niche.name} - Frequently Asked Questions`} />
+          </div>
+        </section>
+      )}
 
       {/* CTA Section */}
       <section className="py-16 bg-eu-blue">

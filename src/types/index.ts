@@ -54,6 +54,11 @@ export interface Company {
   acronym?: string
 }
 
+export interface CategoryFAQ {
+  question: string
+  answer: string
+}
+
 export interface Category {
   id: string
   name: string
@@ -61,6 +66,10 @@ export interface Category {
   description?: string
   icon?: string
   jobCount?: number
+  longDescription?: string
+  salaryRange?: string
+  typicalRoles?: string[]
+  faqs?: CategoryFAQ[]
 }
 
 export interface User {

@@ -3,6 +3,7 @@ import Link from 'next/link'
 import { Metadata } from 'next'
 import { getJobBySlug, getLatestJobs } from '@/lib/data'
 import { POLICY_TAG_LABELS, PolicyTag } from '@/types'
+import { RelatedContent, getRelatedLinks } from '@/components/RelatedContent'
 
 export const revalidate = 60
 
@@ -105,7 +106,10 @@ export default async function JobDetailPage({ params }: JobDetailPageProps) {
 
   const isRetired = job.status === 'expired'
   const deadline = isRetired ? null : getDeadlineUrgency()
-  const activeJobs = isRetired ? await getLatestJobs(3) : []
+  const [activeJobs, relatedLinks] = await Promise.all([
+    isRetired ? getLatestJobs(3) : Promise.resolve([]),
+    getRelatedLinks({ companyName: job.company.name, categorySlug: job.category.slug }),
+  ])
 
   // JSON-LD breadcrumb
   const breadcrumbJsonLd = {
@@ -335,6 +339,13 @@ export default async function JobDetailPage({ params }: JobDetailPageProps) {
                 View company profile &rarr;
               </Link>
             </div>
+
+            {/* Related Content */}
+            {relatedLinks.length > 0 && (
+              <div className="mt-6">
+                <RelatedContent items={relatedLinks} heading="Related Resources" />
+              </div>
+            )}
           </main>
 
           {/* Sidebar */}
