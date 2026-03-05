@@ -81,6 +81,7 @@ export default function Footer() {
                 <li><Link href="/jobs-in-frankfurt" className="hover:text-eu-yellow">Jobs in Frankfurt</Link></li>
                 <li><Link href="/jobs-in-vienna" className="hover:text-eu-yellow">Jobs in Vienna</Link></li>
                 <li><Link href="/geneva" className="hover:text-eu-yellow">Jobs in Geneva</Link></li>
+                <li><Link href="/london" className="hover:text-eu-yellow">Jobs in London</Link></li>
               </ul>
             </div>
             <div>
